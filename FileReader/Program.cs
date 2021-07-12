@@ -12,51 +12,65 @@ namespace FileReader
     {
         static void Main(string[] args)
         {
+            bool app = false;
 
-            string Path = @"C:\sample.txt";
+            Console.WriteLine("Console TXT reader\r");
+            Console.WriteLine("------------------------\n");
 
-            ReadFullFile(Path); // Read full file
+            while (!app)
+            {
+                string Path = @"C:\TestFolderTXTReader\TestRead.txt";
+                int Limit = 100000;
+                //ReadFullFile(Path); // Read full file
 
-            ReadFileInBatch(Path); // Read 1 or more gb large file in chunks
+                ReadFileInBatch(Path,Limit); // Read file in chunks
 
-            Console.Read();
+                Console.Write("Press 'c' and Enter to close the app, or press any other key and Enter to continue: ");
+                if (Console.ReadLine() == "c") app = true;
+
+                Console.WriteLine("\n");
+            }
         }
 
-        /* Example 1 :: Read Full file */
+        /* Read Full file does not work for pointclouds*/
         internal static void ReadFullFile(string Path)
         {
             if (File.Exists(Path)) // Check if local path is valid
             {
                 var table = Path.FileToTable(heading: true, delimiter: '\t');
 
-                // Process your file here
+                // Do stuff here like filtering
 
-                table.TableToFile(@"C:\output.txt");
+                table.TableToFile(@"C:\TestFolderTXTReader\Output.txt");
             }
         }
 
-        /* Example 2 :: Read file in small chunks */
-        internal static void ReadFileInBatch(string Path)
+        /* Read file in chunks */
+        internal static void ReadFileInBatch(string Path, int Limit)
         {
-            int TotalRows = File.ReadLines(Path).Count(); // Count the number of rows in file with lazy load
-            int Limit = 100000;
-            for (int Offset = 0; Offset < TotalRows; Offset += Limit)
+            if (File.Exists(Path)) // Check if local path is valid
             {
-                // Print Logs
-                string Logs = string.Format("Processing :: Rows {0} of Total {1} :: Offset {2} : Limit : {3}",
-                    (Offset + Limit) < TotalRows ? Offset + Limit : TotalRows,
-                    TotalRows, Offset, Limit
-                );
 
-                Console.WriteLine(Logs);
+                int TotalRows = File.ReadLines(Path).Count(); // Count the number of rows in file with lazy load
+                
+                for (int Offset = 0; Offset < TotalRows; Offset += Limit)
+                {
+                    // Print Log into console
+                    string Logs = string.Format("Processing :: Rows {0} of Total {1} :: Offset {2} : Limit : {3}",
+                        (Offset + Limit) < TotalRows ? Offset + Limit : TotalRows,
+                        TotalRows, Offset, Limit
+                    );
 
-                var table = Path.FileToTable(heading: true, delimiter: '\t', offset : Offset, limit: Limit);
+                    Console.WriteLine(Logs);
 
-                // Do all your processing here and with limit and offset and save to drive in append mode
-                // The append mode will write the output in same file for each processed batch.
+                    var table = Path.FileToTable(heading: true, delimiter: '\t', offset: Offset, limit: Limit);
 
-                table.TableToFile(@"C:\output.txt");
-            }
+                    // Do all your processing here and with limit and offset and save to drive in append mode
+                    // The append mode will write the output in same file for each processed batch.
+
+                    table.TableToFile(@"C:\TestFolderTXTReader\Output.txt");
+                }
+            }            
         }
     }
 }
