@@ -9,4 +9,3 @@ C:\Users\Casper\Source\Repos\FileReader\FileReader\obj\Debug\FileReader.exe
 C:\Users\Casper\Source\Repos\FileReader\FileReader\obj\Debug\FileReader.pdb
 C:\Users\Casper\Source\Repos\FileReader\FileReader\bin\Debug\FileReader.exe
 C:\Users\Casper\Source\Repos\FileReader\FileReader\bin\Debug\FileReader.pdb
-C:\Users\Casper\Source\Repos\FileReader\FileReader\obj\Debug\FileReader.csprojResolveAssemblyReference.cache
