@@ -14,7 +14,6 @@ using System.Globalization;
 
 namespace FileReader
 {
-
     class Program
     {
         static void Main(string[] args)
@@ -39,7 +38,7 @@ namespace FileReader
                 {
                     case "a":
                         Console.WriteLine($"Your result: = ");
-                        ReadFileInBatch(Path, Limit, cameraPoint);// Read file in chunks
+                        ReadFileInBatch(Path, Limit, cameraPoint);  // Read file in chunks
                         Console.WriteLine("\n");
                         break;
 
@@ -71,8 +70,7 @@ namespace FileReader
         /// build a selection based on distance based on x,y,z distance to camera positiom
         /// Than sort selection with the shortest distance at the start of the array/ list/ collection/ other way to safe information'
         /// </summary>
-        {
-            
+        {            
 
         }
 
@@ -94,7 +92,6 @@ namespace FileReader
         {
             if (File.Exists(Path)) // Check if local path is valid
             {
-
                 int TotalRows = File.ReadLines(Path).Count(); // Count the number of rows
                 
                 for (int Offset = 0; Offset < TotalRows; Offset += Limit)
@@ -110,7 +107,6 @@ namespace FileReader
                     var table = Path.FileToTable(heading: true, delimiter: '\t', offset: Offset, limit: Limit);
 
                     int checkColumns = table.Columns.Count;
-
                     int checkRows = table.Rows.Count;
                     
                     var points = new Point[4122564];
@@ -120,12 +116,10 @@ namespace FileReader
                     var zArray = new double[4122564];
 
                     var distancesFromCamera = new Point[4122564];
-
                     var distancesFromRay = new Point[4122564];
 
                     DataView view = new DataView(table);
                     DataTable table2 = view.ToTable(false,"X", "Y", "Z");
-                    DataTable table3 = view.ToTable(false, "X");
 
                     for (int i = 0; i < table2.Rows.Count; i++)
                     {
@@ -136,9 +130,6 @@ namespace FileReader
                         points[i] = new Point(x, y, z);                        
 
                         double temp;
-
-                        double.TryParse(table3.Rows[i]["X"].ToString(), NumberStyles.AllowDecimalPoint, System.Globalization.CultureInfo.InvariantCulture, out temp);
-                        xArray[i] = temp;
 
                         double.TryParse(table2.Rows[i]["X"].ToString(), NumberStyles.AllowDecimalPoint, System.Globalization.CultureInfo.InvariantCulture, out temp);
                         points[i].X = temp;
@@ -184,9 +175,9 @@ namespace FileReader
                         */
                     }
 
-                    var nearestX = FindNearest(1, xArray);
-                    var nearestY = FindNearest(1, yArray);
-                    var nearestZ = FindNearest(1, zArray);
+                    double nearestX = FindNearest(1, xArray);
+                    double nearestY = FindNearest(1, yArray);
+                    double nearestZ = FindNearest(1, zArray);                    
 
                     //double targetNumber = 0;
                     //var nearest = distancesFromCamera.Aggregate((current, next) => Math.Abs(current.X - targetNumber) < Math.Abs(next.X - targetNumber) ? current : next);
@@ -206,11 +197,8 @@ namespace FileReader
 
                     //var stringArr = table3.AsEnumerable().Select(r => r.Field<string>("X")).ToArray();
 
-
-
                     //datatable1.AsEnumerable().Select(r => r.Field<string>("Name")).ToArray();
-
-
+                    
                     //double target = 0;
 
                     //var nearest = xArray.MinBy(x => Math.Abs(x - target));
@@ -225,59 +213,7 @@ namespace FileReader
                 Console.WriteLine("Not a correct File path");
             }            
         }
-        /*
-        private static double FindNearest(double targetNumber, Point[] distancesFromCamera)
-        {
-            
-            double nearestValueX;
-            //Point nearestValueY;
-            //Point nearestValueZ;
 
-            if (distancesFromCamera.Any(ab => ab.X == targetNumber))
-            {
-                nearestValueX = 
-                nearestValueX = distancesFromCamera.FirstOrDefault(i => i.X == targetNumber);
-
-                //nearestValueY = results.FirstOrDefault(i => i.Y == targetNumber);
-
-                //nearestValueZ = results.FirstOrDefault(i => i.Z == targetNumber);
-            }
-                
-            else
-            {
-                double greaterThanTarget = 0;
-                double lessThanTarget = 0;
-
-                if (results.Any(ab => ab.X > targetNumber))
-                {
-                    greaterThanTarget = results.Where(i => i.X > targetNumber).Min();
-                }
-                if (results.Any(ab => ab.X < targetNumber))
-                {
-                    lessThanTarget = results.Where(i => i.X < targetNumber).Max();
-                }
-
-                if (lessThanTarget == 0)
-                {
-                    nearestValueX = greaterThanTarget;
-                }
-                else if (greaterThanTarget == 0)
-                {
-                    nearestValueX = lessThanTarget;
-                }
-                else if (targetNumber - lessThanTarget < greaterThanTarget - targetNumber)
-                {
-                    nearestValueX = lessThanTarget;
-                }
-                else
-                {
-                    nearestValueX = greaterThanTarget;
-                }
-            }
-            return nearestValueX;
-           
-        }
-        */
         public static double FindNearest(double targetNumber, IEnumerable<double> collection)
         {
             var results = collection.ToArray();
@@ -325,5 +261,54 @@ namespace FileReader
             }
             return nearestValue;
         }
+        
+        public static double FindNearestPoint(double targetNumber, Point collection)
+        {
+            var results = collection.ToArray();
+            double nearestValue;
+
+            if (results.Any(ab => ab == targetNumber))
+            {
+
+                nearestValue = results.FirstOrDefault(i => i == targetNumber);
+            }
+            else
+            {
+                double greaterThanTarget = 0;
+                double lessThanTarget = 0;
+
+                if (results.Any(ab => ab > targetNumber))
+                {
+                    greaterThanTarget = results.Where(i => i > targetNumber).Min();
+                }
+
+                if (results.Any(ab => ab < targetNumber))
+                {
+                    lessThanTarget = results.Where(i => i < targetNumber).Max();
+                }
+
+                if (lessThanTarget == 0)
+                {
+                    nearestValue = greaterThanTarget;
+                }
+
+                else if (greaterThanTarget == 0)
+                {
+                    nearestValue = lessThanTarget;
+                }
+
+                else if (targetNumber - lessThanTarget < greaterThanTarget - targetNumber)
+                {
+                    nearestValue = lessThanTarget;
+                }
+
+                else
+                {
+                    nearestValue = greaterThanTarget;
+                }
+            }
+            return nearestValue;
+        }
+        
     }
 }
