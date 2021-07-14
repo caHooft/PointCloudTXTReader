@@ -22,5 +22,10 @@ namespace FileReader
             Y = y;
             Z = z;
         }
+
+        public string GetPoints()
+        {
+            return string.Format("{0};{1};{2}",X,Y,Z);
+        }
     }
 }

@@ -111,12 +111,20 @@ namespace FileReader
                     
                     var points = new Point[4122564];
 
-                    var xArray = new double[4122564];
-                    var yArray = new double[4122564];
-                    var zArray = new double[4122564];
+                    var ArrayAbs = new double[4122564];
+                    var xArrayAbs = new double[4122564];
+                    var yArrayAbs = new double[4122564];
+                    var zArrayAbs = new double[4122564];
 
-                    var distancesFromCamera = new Point[4122564];
-                    var distancesFromRay = new Point[4122564];
+                    Dictionary<Point,double> distanceFromCameraDictionary = new Dictionary<Point, double>();
+
+                    //var xArray = new double[4122564];
+                    //var yArray = new double[4122564];
+                    //var zArray = new double[4122564];
+
+                    //var distancesFromCamera = new Point[4122564];
+                    //var closestPoints = new Point[10];
+                    //closestPoints[10] = new Point(1, 1, 1);
 
                     DataView view = new DataView(table);
                     DataTable table2 = view.ToTable(false,"X", "Y", "Z");
@@ -144,19 +152,33 @@ namespace FileReader
 
                     for (int i = 0; i < table2.Rows.Count; i++)
                     {
-                        double x = 1;
-                        double y = 1;
-                        double z = 1;
+                        //double x = 1;
+                        //double y = 1;
+                        //double z = 1;
 
-                        distancesFromCamera[i] = new Point(x, y, z);
+                        //distancesFromCamera[i] = new Point(x, y, z);
+                        
+                        //calculate distnace
+                        //made the x,y,z into a key
+                        //sort the new dictionary on the value
 
-                        distancesFromCamera[i].X = points[i].X - cameraPoint.X;
-                        distancesFromCamera[i].Y = points[i].Y - cameraPoint.Y;
-                        distancesFromCamera[i].Z = points[i].Z - cameraPoint.Z;
+                        //distancesFromCamera[i].X = points[i].X - cameraPoint.X;
+                        //distancesFromCamera[i].Y = points[i].Y - cameraPoint.Y;
+                        //distancesFromCamera[i].Z = points[i].Z - cameraPoint.Z;
 
-                        xArray[i] = points[i].X - cameraPoint.X;
-                        yArray[i] = points[i].Y - cameraPoint.Y;
-                        zArray[i] = points[i].Z - cameraPoint.Z;
+                        xArrayAbs[i] = Math.Abs(points[i].X - cameraPoint.X);
+                        yArrayAbs[i] = Math.Abs(points[i].Y - cameraPoint.Y);
+                        zArrayAbs[i] = Math.Abs(points[i].Z - cameraPoint.Z);
+
+                        ArrayAbs[i] = (Math.Abs(points[i].X - cameraPoint.X) + Math.Abs(points[i].Y - cameraPoint.Y) + Math.Abs(points[i].Z - cameraPoint.Z));
+
+                        distanceFromCameraDictionary.Add(points[i], ArrayAbs[i]);
+
+
+
+                        //xArray[i] = points[i].X - cameraPoint.X;
+                        //yArray[i] = points[i].Y - cameraPoint.Y;
+                        //zArray[i] = points[i].Z - cameraPoint.Z;
 
                         /*
                         double target = 0;
@@ -175,9 +197,64 @@ namespace FileReader
                         */
                     }
 
-                    double nearestX = FindNearest(1, xArray);
-                    double nearestY = FindNearest(1, yArray);
-                    double nearestZ = FindNearest(1, zArray);                    
+                    var myList = distanceFromCameraDictionary.ToList();
+
+                    myList.Sort((pair1, pair2) => pair1.Value.CompareTo(pair2.Value));
+                    foreach (var value in myList)
+                    {
+                        KeyValuePair<Point, double> myVal = (KeyValuePair<Point,double>) value;
+                        Console.WriteLine(string.Format("{0}: {1}",myVal.Key.GetPoints(),myVal.Value));
+                    }
+                    //Func<IEnumerable<int>, Func<IEnumerable<IEnumerable<int>>, IEnumerable<IEnumerable<int>>>> f = B => P => P.OrderBy(p => p.Zip(B, (x, y) => (x - y) * (x - y)).Sum());
+
+                    //string input;
+                    //while ((input = Console.ReadLine()) != null && input != "\n")
+                    //{
+                    //    var spoints = new List<string>();
+                    //    foreach (Match match in Regex.Matches(input, @"\[[0-9, ]*\]"))
+                    //    {
+                    //        spoints.Add(match.Value);
+                    //    }
+
+                    //    var Points = spoints.Select(x => x.Trim(new[] { '[', ']' }).Split(',').Select(y => int.Parse(y.Trim())));
+                    //    var ret = f(Points.First())(Points.Skip(1));
+
+                    //    foreach (var point in ret)
+                    //    {
+                    //        string s = "";
+                    //        foreach (var dim in point)
+                    //            s += dim + ", ";
+
+                    //        Console.Write("[{0}], ", s.Trim(new[] { ',', ' ' }));
+                    //    }
+                    //    Console.WriteLine();
+                    //}
+
+                    //double nearestX = FindNearest(1, xArray);
+                    //double nearestY = FindNearest(1, yArray);
+                    //double nearestZ = FindNearest(1, zArray);
+
+                    //sort on three keys (x, y, and z)
+
+                    //(defun compare - points(a b)
+                    //(if (equal(car a)(car b) fuzz)
+                    //(if (equal(cadr a)(cadr b) fuzz)
+                    //(> (caddr a) (caddr b))
+                    //(> (cadr a) (cadr b))
+                    //)
+                    //(> (car a) (car b))
+                    //)              
+
+                    //(defun xyzcompare(a b / x1 y1 z1 x2 y2 z2)
+                    //(mapcar 'set '(x1 y1 z1)(car a))
+                    //(mapcar 'set '(x2 y2 z2)(car b))
+                    //(or
+                    //(< x1 x2)
+                    //(and(= x1 x2)(< y1 y2)) ;< ----you can substitute equal for each = and add fuzz for
+                    //approximate equality
+                    //(and(= x1 x2)(= y1 y2)(< z1 z2))
+                    //) ; end or
+                    //) ; end defun
 
                     //double targetNumber = 0;
                     //var nearest = distancesFromCamera.Aggregate((current, next) => Math.Abs(current.X - targetNumber) < Math.Abs(next.X - targetNumber) ? current : next);
@@ -198,7 +275,7 @@ namespace FileReader
                     //var stringArr = table3.AsEnumerable().Select(r => r.Field<string>("X")).ToArray();
 
                     //datatable1.AsEnumerable().Select(r => r.Field<string>("Name")).ToArray();
-                    
+
                     //double target = 0;
 
                     //var nearest = xArray.MinBy(x => Math.Abs(x - target));
@@ -261,9 +338,11 @@ namespace FileReader
             }
             return nearestValue;
         }
-        
-        public static double FindNearestPoint(double targetNumber, Point collection)
+        /*
+        public static double FindNearestPoint(Point targetPoint, Point collection)
         {
+
+
             var results = collection.ToArray();
             double nearestValue;
 
@@ -309,6 +388,6 @@ namespace FileReader
             }
             return nearestValue;
         }
-        
+        */
     }
 }
