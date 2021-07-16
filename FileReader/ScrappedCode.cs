@@ -8,23 +8,130 @@ namespace FileReader
 {
     class ScrappedCode
     {
+        public static double FindNearest(double targetNumber, IEnumerable<double> collection)
+        {
+            var results = collection.ToArray();
+            double nearestValue;
+
+            if (results.Any(ab => ab == targetNumber))
+            {
+
+                nearestValue = results.FirstOrDefault(i => i == targetNumber);
+            }
+            else
+            {
+                double greaterThanTarget = 0;
+                double lessThanTarget = 0;
+
+                if (results.Any(ab => ab > targetNumber))
+                {
+                    greaterThanTarget = results.Where(i => i > targetNumber).Min();
+                }
+
+                if (results.Any(ab => ab < targetNumber))
+                {
+                    lessThanTarget = results.Where(i => i < targetNumber).Max();
+                }
+
+                if (lessThanTarget == 0)
+                {
+                    nearestValue = greaterThanTarget;
+                }
+
+                else if (greaterThanTarget == 0)
+                {
+                    nearestValue = lessThanTarget;
+                }
+
+                else if (targetNumber - lessThanTarget < greaterThanTarget - targetNumber)
+                {
+                    nearestValue = lessThanTarget;
+                }
+
+                else
+                {
+                    nearestValue = greaterThanTarget;
+                }
+            }
+            return nearestValue;
+        }
+    }
+
+
+}
+
+//var myList = distanceFromCameraDictionary.ToList();
+
+//myList.Sort((pair1, pair2) => pair1.Value.CompareTo(pair2.Value));
+//foreach (var value in myList)
+//{
+//    KeyValuePair<Point, double> myVal = (KeyValuePair<Point,double>) value;
+//    Console.WriteLine(string.Format("{0}: {1}",myVal.Key.GetPoints(),myVal.Value));
+//}
+
+// If distance is less than current lowest distance
+// Save point + distance in closest point list or array or dictionary   
+
+//for (int i = 0; i < table2.Rows.Count; i++)
+//{
+//    xArrayAbs[i] = Math.Abs(points[i].X - cameraPoint.X);
+//    yArrayAbs[i] = Math.Abs(points[i].Y - cameraPoint.Y);
+//    zArrayAbs[i] = Math.Abs(points[i].Z - cameraPoint.Z);
+
+//    ArrayAbs[i] = (Math.Abs(points[i].X - cameraPoint.X) + Math.Abs(points[i].Y - cameraPoint.Y) + Math.Abs(points[i].Z - cameraPoint.Z));
+
+//    distance.Add(points[i], ArrayAbs[i]);
+//}
+
+//double x = 1;
+//double y = 1;
+//double z = 1;
+
+//distancesFromCamera[i] = new Point(x, y, z);
+
+//calculate distnace
+//made the x,y,z into a key
+//sort the new dictionary on the value
+
+//distancesFromCamera[i].X = points[i].X - cameraPoint.X;
+//distancesFromCamera[i].Y = points[i].Y - cameraPoint.Y;
+//distancesFromCamera[i].Z = points[i].Z - cameraPoint.Z;
+
+//xArray[i] = points[i].X - cameraPoint.X;
+//yArray[i] = points[i].Y - cameraPoint.Y;
+//zArray[i] = points[i].Z - cameraPoint.Z;
+
+/*
+double target = 0;
+double distance = Math.Abs(distancesFromCamera[0].X - target);
+double idx = 0;
+for (int c = 1; c < distancesFromCamera.Length; c++)
+{
+    double cdistance = Math.Abs(distancesFromCamera[c].X - target);
+    if (cdistance < distance)
+    {
+        idx = c;
+        distance = cdistance;
     }
 }
+double theNumber = distancesFromCamera[idx].X;
+*/
+
 /*
-                        double target = 0;
-                        double distance = Math.Abs(distancesFromCamera[0].X - target);
-                        double idx = 0;
-                        for (int c = 1; c < distancesFromCamera.Length; c++)
-                        {
-                            double cdistance = Math.Abs(distancesFromCamera[c].X - target);
-                            if (cdistance < distance)
-                            {
-                                idx = c;
-                                distance = cdistance;
-                            }
-                        }
-                        double theNumber = distancesFromCamera[idx].X;
-                        */
+double target = 0;
+double distance = Math.Abs(distancesFromCamera[0].X - target);
+double idx = 0;
+for (int c = 1; c < distancesFromCamera.Length; c++)
+{
+    double cdistance = Math.Abs(distancesFromCamera[c].X - target);
+    if (cdistance < distance)
+    {
+        idx = c;
+        distance = cdistance;
+    }
+}
+double theNumber = distancesFromCamera[idx].X;
+*/
 
 //Func<IEnumerable<int>, Func<IEnumerable<IEnumerable<int>>, IEnumerable<IEnumerable<int>>>> f = B => P => P.OrderBy(p => p.Zip(B, (x, y) => (x - y) * (x - y)).Sum());
 

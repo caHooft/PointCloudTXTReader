@@ -1,16 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
-using System.IO;
 using System.Linq;
+using MoreLinq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using FileReader.Core;
+using System.IO;
+using System.Data;
+using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
+using System.Globalization;
+using System.Collections;
 
 namespace FileReader.Core
 {
     static class Extension
     {
-        /*
+        //FileToTable for loading everything at once
         public static DataTable FileToTable(this string path, bool heading = true, char delimiter = '\t')
         {
             var table = new DataTable();
@@ -38,9 +45,47 @@ namespace FileReader.Core
                 }
             }
             return table;
-        }
-        */
+        }        
 
+        internal static Dictionary<Point,double> GetClosestPoints(Dictionary<Point,double> dictionary, int amount)
+        {
+            var closestPoints = dictionary.Take(5);
+
+            foreach (var it in closestPoints)
+            {
+                //KeyValuePair<Point, double> Value = default(KeyValuePair<Point, double>);
+                KeyValuePair<Point, double> myValue = (KeyValuePair<Point, double>)it;
+                Console.WriteLine(string.Format("{0}: {1}", myValue.Key.GetPoints(), myValue.Value));
+            }
+            return closestPoints;
+        }
+
+        // Sorts a dictionary of type key(point),distance(double) by the distance
+        internal static Dictionary<Point, double> SortByDistance(Dictionary<Point, double> distance)
+        {
+            var myList = distance.ToList();
+
+            myList.Sort((pair1, pair2) => pair1.Value.CompareTo(pair2.Value));
+
+            foreach (var value in myList)
+            {
+                KeyValuePair<Point, double> myVal = (KeyValuePair<Point, double>)value;
+                //Console.WriteLine(string.Format("{0}: {1}", myVal.Key.GetPoints(), myVal.Value));
+            }
+            
+            var sortedDictionary = myList.ToDictionary();            
+
+            return sortedDictionary;
+
+            // Debugging the Dictionary can be done here
+            //foreach (var value in sortedDictionary)
+            //{
+            //    KeyValuePair<Point, double> myVal = (KeyValuePair<Point, double>)value;
+            //    Console.WriteLine(string.Format("{0}: {1}", myVal.Key.GetPoints(), myVal.Value));
+            //}
+        }
+
+        // File to table that is used for chunk loading a file
         public static DataTable FileToTable(this string path, bool heading = true, char delimiter = '\t', int offset = 0, int limit = 100000)
         {
             var table = new DataTable(); // Make dataTable
