@@ -50,19 +50,47 @@ namespace FileReader
                         break;
 
                     case "s":
-                        Console.WriteLine($"Your result: = ");
-                        Dictionary<Point, double> sortedDictionary = Extension.SortByDistance(distanceFromCameraDictionary);
+                        //Console.WriteLine($"Sorting dictionary please stand by ");
+                        //Dictionary<Point, double> sortedDictionary = Extension.SortByDistance(distanceFromCameraDictionary);
 
-                        foreach (var value in sortedDictionary)
-                        {
-                            KeyValuePair<Point, double> myVal = (KeyValuePair<Point, double>)value;
-                            //Console.WriteLine(string.Format("{0}: {1}", myVal.Key.GetPoints(), myVal.Value));
-                        }
+                        //foreach (var value in sortedDictionary)
+                        //{
+                        //    KeyValuePair<Point, double> myVal = (KeyValuePair<Point, double>)value;
+                        //    Console.WriteLine(string.Format("{0}: {1}", myVal.Key.GetPoints(), myVal.Value));
+                        //}
+                        //Console.WriteLine($"Finished sorting dictionary ");
+
+                        Console.WriteLine($"Sorting dictionary please stand by ");
+                        Console.WriteLine($"The closest 10 points are = ");
+                        Dictionary<Point, double> ClosestPoints = Extension.GetClosestPoints(distanceFromCameraDictionary, 10);
+
+                        Console.WriteLine("\n");
+                        
+                        //foreach (var value in ClosestPoints)
+                        //{
+                        //    KeyValuePair<Point, double> myVal = (KeyValuePair<Point, double>)value;
+                        //    Console.WriteLine(string.Format("{0}: {1}", myVal.Key.GetPoints(), myVal.Value));
+                        //}
+
+                        //Dictionary<Point, double> ClosestPoints = Extension.GetClosestPoints(distanceFromCameraDictionary,10);
+                        //foreach (var value in ClosestPoints)
+                        //{
+                        //    KeyValuePair<Point, double> myVal = (KeyValuePair<Point, double>)value;
+                        //    Console.WriteLine(string.Format("{0}: {1}", myVal.Key.GetPoints(), myVal.Value));
+                        //}
                         Console.WriteLine("\n");
                         break;
 
                     case "d":
-                        Console.WriteLine($"Your doing nothing succesfully ");
+                        Console.WriteLine($"Doing nothing succesfull");
+
+                        //Dictionary<Point, double> ClosestPoints = Extension.GetClosestPoints(distanceFromCameraDictionary, 10);
+
+                        //foreach (var value in ClosestPoints)
+                        //{
+                        //    KeyValuePair<Point, double> myVal = (KeyValuePair<Point, double>)value;
+                        //    Console.WriteLine(string.Format("{0}: {1}", myVal.Key.GetPoints(), myVal.Value));
+                        //}
                         Console.WriteLine("\n");
                         break;
 

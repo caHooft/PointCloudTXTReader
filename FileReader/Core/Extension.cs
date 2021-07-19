@@ -49,7 +49,9 @@ namespace FileReader.Core
 
         internal static Dictionary<Point,double> GetClosestPoints(Dictionary<Point,double> dictionary, int amount)
         {
-            var closestPoints = dictionary.Take(5);
+            Dictionary<Point, double> sortedPoints = Extension.SortByDistance(dictionary);
+
+            var closestPoints = sortedPoints.Take(10);
 
             foreach (var it in closestPoints)
             {
@@ -57,7 +59,9 @@ namespace FileReader.Core
                 KeyValuePair<Point, double> myValue = (KeyValuePair<Point, double>)it;
                 Console.WriteLine(string.Format("{0}: {1}", myValue.Key.GetPoints(), myValue.Value));
             }
-            return closestPoints;
+
+            var closestPointsDictionary = closestPoints.ToDictionary();
+            return closestPointsDictionary;
         }
 
         // Sorts a dictionary of type key(point),distance(double) by the distance
@@ -73,16 +77,17 @@ namespace FileReader.Core
                 //Console.WriteLine(string.Format("{0}: {1}", myVal.Key.GetPoints(), myVal.Value));
             }
             
-            var sortedDictionary = myList.ToDictionary();            
+            var sortedDictionary = myList.ToDictionary();                        
 
-            return sortedDictionary;
+            //Debugging the Dictionary can be done here
 
-            // Debugging the Dictionary can be done here
             //foreach (var value in sortedDictionary)
             //{
             //    KeyValuePair<Point, double> myVal = (KeyValuePair<Point, double>)value;
             //    Console.WriteLine(string.Format("{0}: {1}", myVal.Key.GetPoints(), myVal.Value));
             //}
+
+            return sortedDictionary;
         }
 
         // File to table that is used for chunk loading a file
