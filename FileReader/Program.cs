@@ -37,7 +37,9 @@ namespace FileReader
                 Console.WriteLine("\ta - ReadFileInBatch");
                 Console.WriteLine("\ts - Sort Dictionary");
                 Console.WriteLine("\td - Do nothing");
+                Console.WriteLine("\tq - calculate pitch / yaw from directional vector");
                 Console.WriteLine("\tf - Quit application");
+                
 
                 Console.Write("Your option? ");
 
@@ -94,12 +96,26 @@ namespace FileReader
                         Console.WriteLine("\n");
                         break;
 
+                    case "q":
+                        Console.WriteLine($"calculate pitch/yaw from directional vector");
+                        Console.WriteLine($"not implemented yet");
+                        //Dictionary<Point, double> ClosestPoints = Extension.GetClosestPoints(distanceFromCameraDictionary, 10);
+
+                        //foreach (var value in ClosestPoints)
+                        //{
+                        //    KeyValuePair<Point, double> myVal = (KeyValuePair<Point, double>)value;
+                        //    Console.WriteLine(string.Format("{0}: {1}", myVal.Key.GetPoints(), myVal.Value));
+                        //}
+                        Console.WriteLine("\n");
+
+                        break;
+
                     case "f":
                         app = false;
                         break;
 
                     default:
-                        Console.WriteLine($"please enter a,s,d or f");
+                        Console.WriteLine($"please enter a,s,d,q or f");
                         break;
                 }
               
@@ -238,7 +254,7 @@ namespace FileReader
                 distance.Add(points[i], ArrayAbs[i]);
             }
             
-            //Debugging the not sorted Dictionary can be done here
+            //Debugging the not sorted Dictionary with distances can be done here
             //foreach (var value in distance)
             //{
             //    KeyValuePair<Point, double> myVal = (KeyValuePair<Point, double>)value;

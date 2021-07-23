@@ -51,7 +51,7 @@ namespace FileReader.Core
         {
             Dictionary<Point, double> sortedPoints = Extension.SortByDistance(dictionary);
 
-            var closestPoints = sortedPoints.Take(10);
+            var closestPoints = sortedPoints.Take(amount);
 
             foreach (var it in closestPoints)
             {
