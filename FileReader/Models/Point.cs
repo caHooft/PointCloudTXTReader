@@ -7,11 +7,6 @@ namespace FileReader
 {
     public class Point
     {
-        //    public double X { get; set; }
-        //    public double Y { get; set; }
-        //    public double Z { get; set; }
-        //}
-
         public double X { get; set; }
         public double Y { get; set; }
         public double Z { get; set; }
@@ -26,6 +21,11 @@ namespace FileReader
         public string GetPoints()
         {
             return string.Format("{0};{1};{2}",X,Y,Z);
+        }
+
+        public double magnitude()
+        {
+            return Math.Sqrt(Math.Pow(X, 2) + Math.Pow(Y, 2) + Math.Pow(Z, 2));
         }
     }
 }

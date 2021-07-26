@@ -1,22 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using MoreLinq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 using FileReader.Core;
 using System.IO;
-using System.Data;
-using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
 using System.Globalization;
-using System.Collections;
 
 namespace FileReader
 {
     class Program
     {
+        private static Point[] points;
+
         static void Main(string[] args)
         {          
 
@@ -26,6 +20,8 @@ namespace FileReader
 
             Point cameraPoint = new Point(131453.074, 398786.554, 16.889);
 
+            
+            Dictionary<Point, double> distanceFromRayDictionary = new Dictionary<Point, double>();
             Dictionary<Point, double> distanceFromCameraDictionary = new Dictionary<Point, double>();
 
             Console.WriteLine("Console TXT reader\r");
@@ -34,20 +30,60 @@ namespace FileReader
             while (app)
             {
                 Console.WriteLine("Choose an option from the following list:");
-                Console.WriteLine("\ta - ReadFileInBatch");
-                Console.WriteLine("\ts - Sort Dictionary");
-                Console.WriteLine("\td - Do nothing");
-                Console.WriteLine("\tq - calculate pitch / yaw from directional vector");
-                Console.WriteLine("\tf - Quit application");
+                Console.WriteLine("\tq - ReadFileInBatch");
+                Console.WriteLine("\tw - Measure distance from the points to the camera");
+                Console.WriteLine("\te - Measure distance from the points to the ray");
+                Console.WriteLine("\ta - Sort Dictionary based on distance from point to camera");
+                Console.WriteLine("\ts - Sort Dictionary based on distance from point to ray");  
+                Console.WriteLine("\tl - Quit application");
                 
 
                 Console.Write("Your option? ");
 
                 switch (Console.ReadLine())
                 {
-                    case "a":
+                    case "q":
                         Console.WriteLine($"Your result: = ");
                         ReadFileInBatch(Path, Limit, cameraPoint, distanceFromCameraDictionary);  // Read file in chunks
+                        Console.WriteLine("\n");
+                        break;
+
+                    case "w":
+                        Console.WriteLine($"Measure distance from the points to the camera");
+                        MeasureDistanceToCamera(distanceFromCameraDictionary, cameraPoint, points);
+                        //MeasureDistanceToCamera(dictonary, cameraPoint, points, iterations);
+                        Console.WriteLine("\n");
+                        break;
+
+                    case "e":
+                        Console.WriteLine($"Measure distance from the points to the ray");
+
+                        Point a = new Point(4, 2, 1);
+                        Point b = new Point(8, 4, 2);
+                        Point c = new Point(2, 2, 2);
+
+                        Console.WriteLine("Shortest distance is : " + ShortDistance(a, b, c));
+
+                        Console.WriteLine("\n");
+
+                        break;
+
+                    case "a":
+                        //Console.WriteLine($"Sorting dictionary please stand by ");
+                        //Dictionary<Point, double> sortedDictionary = Extension.SortByDistance(distanceFromCameraDictionary);
+
+                        //foreach (var value in sortedDictionary)
+                        //{
+                        //    KeyValuePair<Point, double> myVal = (KeyValuePair<Point, double>)value;
+                        //    Console.WriteLine(string.Format("{0}: {1}", myVal.Key.GetPoints(), myVal.Value));
+                        //}
+                        //Console.WriteLine($"Finished sorting dictionary ");
+
+                        Console.WriteLine($"Sorting dictionary based on distance to camera please stand by ");
+                        Console.WriteLine($"The closest 10 points based on camera position are = ");
+                        Dictionary<Point, double> ClosestPointsToCamera = Extension.GetClosestPointsToTheCamera(distanceFromCameraDictionary, 10);
+
+                        Console.WriteLine("\n");
                         Console.WriteLine("\n");
                         break;
 
@@ -61,56 +97,15 @@ namespace FileReader
                         //    Console.WriteLine(string.Format("{0}: {1}", myVal.Key.GetPoints(), myVal.Value));
                         //}
                         //Console.WriteLine($"Finished sorting dictionary ");
-
-                        Console.WriteLine($"Sorting dictionary please stand by ");
+                        Console.WriteLine($"Sorting dictionary based on distance to ray please stand by ");
                         Console.WriteLine($"The closest 10 points are = ");
-                        Dictionary<Point, double> ClosestPoints = Extension.GetClosestPoints(distanceFromCameraDictionary, 10);
-
-                        Console.WriteLine("\n");
+                        Dictionary<Point, double> ClosestPointsToRay = Extension.GetClosestPointsToTheCamera(distanceFromCameraDictionary, 10);
                         
-                        //foreach (var value in ClosestPoints)
-                        //{
-                        //    KeyValuePair<Point, double> myVal = (KeyValuePair<Point, double>)value;
-                        //    Console.WriteLine(string.Format("{0}: {1}", myVal.Key.GetPoints(), myVal.Value));
-                        //}
-
-                        //Dictionary<Point, double> ClosestPoints = Extension.GetClosestPoints(distanceFromCameraDictionary,10);
-                        //foreach (var value in ClosestPoints)
-                        //{
-                        //    KeyValuePair<Point, double> myVal = (KeyValuePair<Point, double>)value;
-                        //    Console.WriteLine(string.Format("{0}: {1}", myVal.Key.GetPoints(), myVal.Value));
-                        //}
+                        Console.WriteLine("\n");
                         Console.WriteLine("\n");
                         break;
 
-                    case "d":
-                        Console.WriteLine($"Doing nothing succesfull");
-
-                        //Dictionary<Point, double> ClosestPoints = Extension.GetClosestPoints(distanceFromCameraDictionary, 10);
-
-                        //foreach (var value in ClosestPoints)
-                        //{
-                        //    KeyValuePair<Point, double> myVal = (KeyValuePair<Point, double>)value;
-                        //    Console.WriteLine(string.Format("{0}: {1}", myVal.Key.GetPoints(), myVal.Value));
-                        //}
-                        Console.WriteLine("\n");
-                        break;
-
-                    case "q":
-                        Console.WriteLine($"calculate pitch/yaw from directional vector");
-                        Console.WriteLine($"not implemented yet");
-                        //Dictionary<Point, double> ClosestPoints = Extension.GetClosestPoints(distanceFromCameraDictionary, 10);
-
-                        //foreach (var value in ClosestPoints)
-                        //{
-                        //    KeyValuePair<Point, double> myVal = (KeyValuePair<Point, double>)value;
-                        //    Console.WriteLine(string.Format("{0}: {1}", myVal.Key.GetPoints(), myVal.Value));
-                        //}
-                        Console.WriteLine("\n");
-
-                        break;
-
-                    case "f":
+                    case "l":
                         app = false;
                         break;
 
@@ -131,7 +126,6 @@ namespace FileReader
                 Console.WriteLine("\n");
             }
         }
-
         internal static void PickPoint(Point cameraPoint)
         /// <summary>
         /// Make a cone from the camera position
@@ -143,6 +137,16 @@ namespace FileReader
         {            
 
         }
+        //attempt at converting C++ calculations to C#
+        internal static double ShortDistance(Point line_point1, Point line_point2, Point point)
+        {
+            Point AB = new Point((line_point2.X - line_point1.X),(line_point2.Y - line_point1.Y),(line_point2.Z - line_point1.Z));
+            Point AC = new Point((point.X - line_point1.X), (point.Y - line_point1.Y), (point.Z - line_point1.Z));
+            var area = Extension.CrossProduct(AB, AC).magnitude();
+            var CD = area / AB.magnitude();
+
+            return CD;
+        }
 
         /* Read file in chunks */
         internal static void ReadFileInBatch(string Path, int Limit, Point cameraPoint, Dictionary<Point,double> distance)
@@ -150,7 +154,7 @@ namespace FileReader
             if (File.Exists(Path)) // Check if local path is valid
             {
                 int TotalRows = File.ReadLines(Path).Count(); // Count the number of rows
-                
+
                 for (int Offset = 0; Offset < TotalRows; Offset += Limit)
                 {
                     // Print Log into console
@@ -160,53 +164,54 @@ namespace FileReader
                     );
 
                     Console.WriteLine(Logs);
-                    
+
                     var table = Path.FileToTable(heading: true, delimiter: '\t', offset: Offset, limit: Limit);
 
-                    //Dictionary<Point, double> distanceFromCameraDictionary = new Dictionary<Point, double>();
+                    Dictionary<Point, double> distanceFromCameraDictionary = new Dictionary<Point, double>();
 
-                    int checkColumns = table.Columns.Count;
-                    int checkRows = table.Rows.Count;
-                    int iterations = 0;                    
+                    //int checkColumns = table.Columns.Count;
+                   // int checkRows = table.Rows.Count;
 
-                    Point[] points = new Point[4122564];                   
+                    int iterations = 0;
+                    points = new Point[TotalRows];
+                    //Point[] points = new Point[TotalRows];
 
-                    //var closestPoints = new Point[10];
-                    //closestPoints[10] = new Point(1, 1, 1);
+                    //DataView view = new DataView(table);
+                    //DataTable table2 = view.ToTable(false, "X", "Y", "Z");
 
-                    DataView view = new DataView(table);
-                    DataTable table2 = view.ToTable(false,"X", "Y", "Z");
-
-                    for (int i = 0; i < table2.Rows.Count; i++)
+                    for (int i = 0; i < table.Rows.Count; i++)
                     {
-                        double x = 1;
-                        double y = 1;
-                        double z = 1;
-
-                        points[i] = new Point(x, y, z);                        
+                        points[i] = new Point(1, 1, 1);
 
                         double temp;
 
-                        double.TryParse(table2.Rows[i]["X"].ToString(), NumberStyles.AllowDecimalPoint, System.Globalization.CultureInfo.InvariantCulture, out temp);
+                        //double.TryParse(table2.Rows[i]["X"].ToString(), NumberStyles.AllowDecimalPoint, System.Globalization.CultureInfo.InvariantCulture, out temp);
+                        //points[i].X = temp;
+
+                        //double.TryParse(table2.Rows[i]["Y"].ToString(), NumberStyles.AllowDecimalPoint, System.Globalization.CultureInfo.InvariantCulture, out temp);
+                        //points[i].Y = temp;
+
+                        //double.TryParse(table2.Rows[i]["Z"].ToString(), NumberStyles.AllowDecimalPoint, System.Globalization.CultureInfo.InvariantCulture, out temp);
+                        //points[i].Z = temp;
+
+                        double.TryParse(table.Rows[i]["X"].ToString(), NumberStyles.AllowDecimalPoint, System.Globalization.CultureInfo.InvariantCulture, out temp);
                         points[i].X = temp;
-                        
-                        double.TryParse(table2.Rows[i]["Y"].ToString(), NumberStyles.AllowDecimalPoint, System.Globalization.CultureInfo.InvariantCulture, out temp);
+
+                        double.TryParse(table.Rows[i]["Y"].ToString(), NumberStyles.AllowDecimalPoint, System.Globalization.CultureInfo.InvariantCulture, out temp);
                         points[i].Y = temp;
 
-                        double.TryParse(table2.Rows[i]["Z"].ToString(), NumberStyles.AllowDecimalPoint, System.Globalization.CultureInfo.InvariantCulture, out temp);
-                        points[i].Z = temp;                       
+                        double.TryParse(table.Rows[i]["Z"].ToString(), NumberStyles.AllowDecimalPoint, System.Globalization.CultureInfo.InvariantCulture, out temp);
+                        points[i].Z = temp;
 
-                        if (i < (Limit - 1))
-                        {
-                            iterations = 22563;
-                        }
-                        else
-                        {
-                            iterations = Limit;
-                        }                        
-                    }
-                    
-                    fillDictionary(distance, cameraPoint, points, iterations);                 
+                        //if (i < (Limit - 1))
+                        //{
+                        //    iterations = 22563;
+                        //}
+                        //else
+                        //{
+                        //    iterations = Limit;
+                        //}
+                    }                   
 
                     // prints entire datatable
                     //table.TableToFile(@"C:\TestFolderTXTReader\Output.txt");
@@ -236,24 +241,18 @@ namespace FileReader
             }
         }
 
-        internal static Dictionary<Point, double> fillDictionary(Dictionary<Point, double> distance, Point cameraPoint, Point[] points, int iterations)
-        {
-            double[] ArrayAbs  = new double[4122564];
-            double[] xArrayAbs = new double[4122564];
-            double[] yArrayAbs = new double[4122564];
-            double[] zArrayAbs = new double[4122564];
+        internal static Dictionary<Point, double> MeasureDistanceToCamera(Dictionary<Point, double> distanceToCameraDictionary, Point cameraPoint, Point[] points)
+        {           
+            double[] ArrayAbs = new double[points.Length];
 
-            for (int i = 0; i < iterations; i++)
+            for (int i = 0; i < points.Length; i++)
             {
-                xArrayAbs[i] = Math.Abs(points[i].X - cameraPoint.X);
-                yArrayAbs[i] = Math.Abs(points[i].Y - cameraPoint.Y);
-                zArrayAbs[i] = Math.Abs(points[i].Z - cameraPoint.Z);
 
                 ArrayAbs[i] = (Math.Abs(points[i].X - cameraPoint.X) + Math.Abs(points[i].Y - cameraPoint.Y) + Math.Abs(points[i].Z - cameraPoint.Z));
 
-                distance.Add(points[i], ArrayAbs[i]);
+                distanceToCameraDictionary.Add(points[i], ArrayAbs[i]);
             }
-            
+
             //Debugging the not sorted Dictionary with distances can be done here
             //foreach (var value in distance)
             //{
@@ -261,7 +260,58 @@ namespace FileReader
             //    Console.WriteLine(string.Format("{0}: {1}", myVal.Key.GetPoints(), myVal.Value));
             //}
 
-            return distance;
+                return distanceToCameraDictionary;
+            }
+
+
+        // This function does not work beacause it is incomplete
+        // The example uses 2 functions that are not in the example
+        // 1 does a constraint (but i dont know what it constains)
+        // The other one calculates the sqaure distance
+        // When working this function takes a point and the beginnen and end of a line
+        // Based on this it calculates the distance from the point to the line
+        // 
+        internal static double DistanceFromLineToPoint(Point point, Point lineStart, Point lineEnd)
+        {
+            double line_dist = dist_sq(lineStart.X, lineStart.Y, lineStart.Z, lineEnd.X, lineEnd.Y, lineEnd.Z);
+
+            if (line_dist != 0)
+            {
+                double t = ((point.X - lineStart.X) * (lineEnd.X - lineStart.X) + (point.Y - lineStart.Y) * (lineEnd.Y - lineStart.Y) + (point.Z - lineStart.Z) * (lineEnd.Z - lineStart.Z)) / line_dist;
+
+                t = constrain(t, 0, 1);
+
+                return dist_sq(point.X, point.Y, point.Z, lineStart.X + t * (lineEnd.X - lineStart.X), lineStart.Y + t * (lineEnd.Y - lineStart.Y), lineStart.Z + t * (lineEnd.Z - lineStart.Z));
+            }
+
+            else
+            {
+                Console.WriteLine("Line distance = 0 which caused this error");
+                return point.X;
+            }
         }
+        //function required for DistanceFromLineToPoint
+        private static double constrain(double t, int v1, int v2)
+        {
+            throw new NotImplementedException();
+        }
+        //function required for DistanceFromLineToPoint
+        private static double dist_sq(double x, double y, double z, double v1, double v2, double v3)
+        {
+            throw new NotImplementedException();
+        }
+        // javascript version of above script
+        //float dist_to_segment_squared(float px, float py, float pz, float lx1, float ly1, float lz1, float lx2, float ly2, float lz2)
+        //{
+        //    float line_dist = dist_sq(lx1, ly1, lz1, lx2, ly2, lz2);
+
+        //    if (line_dist == 0) return dist_sq(px, py, pz, lx1, ly1, lz1);
+
+        //    float t = ((px - lx1) * (lx2 - lx1) + (py - ly1) * (ly2 - ly1) + (pz - lz1) * (lz2 - lz1)) / line_dist;
+
+        //    t = constrain(t, 0, 1);
+
+        //    return dist_sq(px, py, pz, lx1 + t * (lx2 - lx1), ly1 + t * (ly2 - ly1), lz1 + t * (lz2 - lz1));
+        //}
     }
 }

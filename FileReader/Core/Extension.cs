@@ -18,36 +18,9 @@ namespace FileReader.Core
     static class Extension
     {
         //FileToTable for loading everything at once
-        public static DataTable FileToTable(this string path, bool heading = true, char delimiter = '\t')
-        {
-            var table = new DataTable();
-            string headerLine = File.ReadLines(path).FirstOrDefault(); // Read the first row for headings
-            string[] headers = headerLine.Split(delimiter);
-            int skip = 1;
-            int num = 1;
+        
 
-            foreach (string header in headers)
-            {
-                if (heading)
-                    table.Columns.Add(header);
-                else
-                {
-                    table.Columns.Add("Field" + num); // Create fields header if heading is false
-                    num++;
-                    skip = 0; // Don't skip the first row if heading is false
-                }
-            }
-            foreach (string line in File.ReadLines(path).Skip(skip))
-            {
-                if (!string.IsNullOrEmpty(line))
-                {
-                    table.Rows.Add(line.Split(delimiter));
-                }
-            }
-            return table;
-        }        
-
-        internal static Dictionary<Point,double> GetClosestPoints(Dictionary<Point,double> dictionary, int amount)
+        internal static Dictionary<Point,double> GetClosestPointsToTheCamera(Dictionary<Point,double> dictionary, int amount)
         {
             Dictionary<Point, double> sortedPoints = Extension.SortByDistance(dictionary);
 
@@ -55,7 +28,6 @@ namespace FileReader.Core
 
             foreach (var it in closestPoints)
             {
-                //KeyValuePair<Point, double> Value = default(KeyValuePair<Point, double>);
                 KeyValuePair<Point, double> myValue = (KeyValuePair<Point, double>)it;
                 Console.WriteLine(string.Format("{0}: {1}", myValue.Key.GetPoints(), myValue.Value));
             }
@@ -142,6 +114,17 @@ namespace FileReader.Core
                 }
                 sw.Write(stringBuilder.ToString());
             }
+        }
+
+        public static Point CrossProduct(Point v1, Point v2)
+        {
+            double x, y, z;
+            x = v1.Y * v2.Z - v2.Y * v1.Z;
+            y = (v1.X * v2.Z - v2.X * v1.Z) * -1;
+            z = v1.X * v2.Y - v2.X * v1.Y;
+
+            var crossProduct = new Point(x, y, z);
+            return crossProduct;
         }
     }
 }
