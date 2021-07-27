@@ -12,14 +12,12 @@ namespace FileReader
         private static Point[] points;
 
         static void Main(string[] args)
-        {          
-
+        {
             bool app = true;
             string Path = @"C:\TestFolderTXTReader\TestRead.txt";
             int Limit = 100000;
 
             Point cameraPoint = new Point(131453.074, 398786.554, 16.889);
-
             
             Dictionary<Point, double> distanceFromRayDictionary = new Dictionary<Point, double>();
             Dictionary<Point, double> distanceFromCameraDictionary = new Dictionary<Point, double>();
@@ -35,8 +33,7 @@ namespace FileReader
                 Console.WriteLine("\te - Measure distance from the points to the ray");
                 Console.WriteLine("\ta - Sort Dictionary based on distance from point to camera");
                 Console.WriteLine("\ts - Sort Dictionary based on distance from point to ray");  
-                Console.WriteLine("\tl - Quit application");
-                
+                Console.WriteLine("\tl - Quit application");                
 
                 Console.Write("Your option? ");
 
@@ -97,6 +94,7 @@ namespace FileReader
                         //    Console.WriteLine(string.Format("{0}: {1}", myVal.Key.GetPoints(), myVal.Value));
                         //}
                         //Console.WriteLine($"Finished sorting dictionary ");
+
                         Console.WriteLine($"Sorting dictionary based on distance to ray please stand by ");
                         Console.WriteLine($"The closest 10 points are = ");
                         Dictionary<Point, double> ClosestPointsToRay = Extension.GetClosestPointsToTheCamera(distanceFromCameraDictionary, 10);
@@ -173,6 +171,7 @@ namespace FileReader
                    // int checkRows = table.Rows.Count;
 
                     int iterations = 0;
+
                     points = new Point[TotalRows];
                     //Point[] points = new Point[TotalRows];
 
