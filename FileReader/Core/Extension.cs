@@ -20,7 +20,7 @@ namespace FileReader.Core
         //FileToTable for loading everything at once
         
 
-        internal static Dictionary<Point,double> GetClosestPointsToTheCamera(Dictionary<Point,double> dictionary, int amount)
+        internal static Dictionary<Point,double> GetClosestPoints(Dictionary<Point,double> dictionary, int amount)
         {
             Dictionary<Point, double> sortedPoints = Extension.SortByDistance(dictionary);
 

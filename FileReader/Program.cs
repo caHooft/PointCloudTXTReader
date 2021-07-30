@@ -29,7 +29,7 @@ namespace FileReader
             {
                 Console.WriteLine("Choose an option from the following list:");
                 Console.WriteLine("\tq - ReadFileInBatch");
-                Console.WriteLine("\tw - Measure distance from the points to the camera");
+                //Console.WriteLine("\tw - Measure distance from the points to the camera");
                 Console.WriteLine("\te - Measure distance from the points to the ray");
                 Console.WriteLine("\ta - Sort Dictionary based on distance from point to camera");
                 Console.WriteLine("\ts - Sort Dictionary based on distance from point to ray");  
@@ -41,16 +41,16 @@ namespace FileReader
                 {
                     case "q":
                         Console.WriteLine($"Your result: = ");
-                        ReadFileInBatch(Path, Limit, cameraPoint, distanceFromCameraDictionary);  // Read file in chunks
+                        ReadFileInBatch(Path, Limit, cameraPoint, distanceFromCameraDictionary, distanceFromRayDictionary);  // Read file in chunks
                         Console.WriteLine("\n");
                         break;
 
-                    case "w":
-                        Console.WriteLine($"Measure distance from the points to the camera");
-                        MeasureDistanceToCamera(distanceFromCameraDictionary, cameraPoint, points);
-                        //MeasureDistanceToCamera(dictonary, cameraPoint, points, iterations);
-                        Console.WriteLine("\n");
-                        break;
+                    //case "w":
+                    //    Console.WriteLine($"Measure distance from the points to the camera");
+                    //    //MeasureDistanceToCamera(distanceFromCameraDictionary, cameraPoint, points, iterations);
+                    //    //MeasureDistanceToCamera(dictonary, cameraPoint, points, iterations);
+                    //    Console.WriteLine("\n");
+                    //    break;
 
                     case "e":
                         Console.WriteLine($"Measure distance from the points to the ray");
@@ -66,38 +66,18 @@ namespace FileReader
                         break;
 
                     case "a":
-                        //Console.WriteLine($"Sorting dictionary please stand by ");
-                        //Dictionary<Point, double> sortedDictionary = Extension.SortByDistance(distanceFromCameraDictionary);
-
-                        //foreach (var value in sortedDictionary)
-                        //{
-                        //    KeyValuePair<Point, double> myVal = (KeyValuePair<Point, double>)value;
-                        //    Console.WriteLine(string.Format("{0}: {1}", myVal.Key.GetPoints(), myVal.Value));
-                        //}
-                        //Console.WriteLine($"Finished sorting dictionary ");
-
                         Console.WriteLine($"Sorting dictionary based on distance to camera please stand by ");
                         Console.WriteLine($"The closest 10 points based on camera position are = ");
-                        Dictionary<Point, double> ClosestPointsToCamera = Extension.GetClosestPointsToTheCamera(distanceFromCameraDictionary, 10);
+                        Dictionary<Point, double> ClosestPointsToCamera = Extension.GetClosestPoints(distanceFromCameraDictionary, 10);
 
                         Console.WriteLine("\n");
                         Console.WriteLine("\n");
                         break;
 
                     case "s":
-                        //Console.WriteLine($"Sorting dictionary please stand by ");
-                        //Dictionary<Point, double> sortedDictionary = Extension.SortByDistance(distanceFromCameraDictionary);
-
-                        //foreach (var value in sortedDictionary)
-                        //{
-                        //    KeyValuePair<Point, double> myVal = (KeyValuePair<Point, double>)value;
-                        //    Console.WriteLine(string.Format("{0}: {1}", myVal.Key.GetPoints(), myVal.Value));
-                        //}
-                        //Console.WriteLine($"Finished sorting dictionary ");
-
                         Console.WriteLine($"Sorting dictionary based on distance to ray please stand by ");
                         Console.WriteLine($"The closest 10 points are = ");
-                        Dictionary<Point, double> ClosestPointsToRay = Extension.GetClosestPointsToTheCamera(distanceFromCameraDictionary, 10);
+                        Dictionary<Point, double> ClosestPointsToRay = Extension.GetClosestPoints(distanceFromRayDictionary, 10);
                         
                         Console.WriteLine("\n");
                         Console.WriteLine("\n");
@@ -147,8 +127,8 @@ namespace FileReader
         }
 
         /* Read file in chunks */
-        internal static void ReadFileInBatch(string Path, int Limit, Point cameraPoint, Dictionary<Point,double> distance)
-        {
+        internal static void ReadFileInBatch(string Path, int Limit, Point cameraPoint, Dictionary<Point,double> distanceFromCameraDictionary, Dictionary<Point,double> DistanceFromRayDictionary)
+        {            
             if (File.Exists(Path)) // Check if local path is valid
             {
                 int TotalRows = File.ReadLines(Path).Count(); // Count the number of rows
@@ -165,13 +145,10 @@ namespace FileReader
 
                     var table = Path.FileToTable(heading: true, delimiter: '\t', offset: Offset, limit: Limit);
 
-                    Dictionary<Point, double> distanceFromCameraDictionary = new Dictionary<Point, double>();
-
-                    //int checkColumns = table.Columns.Count;
-                   // int checkRows = table.Rows.Count;
+                    // int checkColumns = table.Columns.Count;
+                    // int checkRows = table.Rows.Count;
 
                     int iterations = 0;
-
                     points = new Point[TotalRows];
                     //Point[] points = new Point[TotalRows];
 
@@ -202,15 +179,18 @@ namespace FileReader
                         double.TryParse(table.Rows[i]["Z"].ToString(), NumberStyles.AllowDecimalPoint, System.Globalization.CultureInfo.InvariantCulture, out temp);
                         points[i].Z = temp;
 
-                        //if (i < (Limit - 1))
-                        //{
-                        //    iterations = 22563;
-                        //}
-                        //else
-                        //{
-                        //    iterations = Limit;
-                        //}
-                    }                   
+                        if (i < (Limit - 1))
+                        {
+                            iterations = 22563;
+                        }
+                        else
+                        {
+                            iterations = Limit;
+                        }
+                    }
+
+                    MeasureDistanceToCamera(distanceFromCameraDictionary, cameraPoint, points, iterations);
+                    MeasureDistanceToRay(DistanceFromRayDictionary, cameraPoint, points, iterations);
 
                     // prints entire datatable
                     //table.TableToFile(@"C:\TestFolderTXTReader\Output.txt");
@@ -240,27 +220,49 @@ namespace FileReader
             }
         }
 
-        internal static Dictionary<Point, double> MeasureDistanceToCamera(Dictionary<Point, double> distanceToCameraDictionary, Point cameraPoint, Point[] points)
+        internal static Dictionary<Point, double> MeasureDistanceToCamera(Dictionary<Point, double> distanceToCameraDictionary, Point cameraPoint, Point[] points, int iterations)
         {           
             double[] ArrayAbs = new double[points.Length];
 
-            for (int i = 0; i < points.Length; i++)
-            {
 
+            for (int i = 0; i < iterations; i++)
+            {
                 ArrayAbs[i] = (Math.Abs(points[i].X - cameraPoint.X) + Math.Abs(points[i].Y - cameraPoint.Y) + Math.Abs(points[i].Z - cameraPoint.Z));
 
                 distanceToCameraDictionary.Add(points[i], ArrayAbs[i]);
             }
 
             //Debugging the not sorted Dictionary with distances can be done here
-            //foreach (var value in distance)
+            //foreach (var value in distanceToCameraDictionary)
             //{
             //    KeyValuePair<Point, double> myVal = (KeyValuePair<Point, double>)value;
             //    Console.WriteLine(string.Format("{0}: {1}", myVal.Key.GetPoints(), myVal.Value));
             //}
 
-                return distanceToCameraDictionary;
+            return distanceToCameraDictionary;
             }
+
+        internal static Dictionary<Point, double> MeasureDistanceToRay(Dictionary<Point, double> distanceToRayDictionary, Point cameraPoint, Point[] points, int iterations)
+        {
+            double[] ArrayDistToLine = new double[points.Length];
+            Point endOfLine = new Point(131551.964, 398797151, 6.535);
+
+            for (int i = 0; i < iterations; i++)
+            {                               
+
+                ArrayDistToLine[i]= ShortDistance(cameraPoint, endOfLine, points[i]);
+                distanceToRayDictionary.Add(points[i], ArrayDistToLine[i]);
+            }
+
+            //Debugging the not sorted Dictionary with distances can be done here
+            //foreach (var value in distanceToCameraDictionary)
+            //{
+            //    KeyValuePair<Point, double> myVal = (KeyValuePair<Point, double>)value;
+            //    Console.WriteLine(string.Format("{0}: {1}", myVal.Key.GetPoints(), myVal.Value));
+            //}
+
+            return distanceToRayDictionary;
+        }
 
 
         // This function does not work beacause it is incomplete
