@@ -17,10 +17,20 @@ namespace FileReader.Core
 {
     static class Extension
     {
-        //FileToTable for loading everything at once
-        
+        // Calculates the shortest distance between any Point given and any line given
+        public static double ShortDistance(Point line_point1, Point line_point2, Point point)
+        {
+            Point AB = new Point((line_point2.X - line_point1.X), (line_point2.Y - line_point1.Y), (line_point2.Z - line_point1.Z));
+            Point AC = new Point((point.X - line_point1.X), (point.Y - line_point1.Y), (point.Z - line_point1.Z));
+            var area = Extension.CrossProduct(AB, AC).magnitude();
+            var CD = area / AB.magnitude();
 
-        internal static Dictionary<Point,double> GetClosestPoints(Dictionary<Point,double> dictionary, int amount)
+            return CD;
+        }
+        // This funciton takes a dictionary and calls SortByDistance
+        // The dictionary it gets from sort by distance is sorted on the distance(value of the dictionary)
+        // Than this function takes the 10 closest points and returns them
+        public static Dictionary<Point,double> GetClosestPoints(Dictionary<Point,double> dictionary, int amount)
         {
             Dictionary<Point, double> sortedPoints = Extension.SortByDistance(dictionary);
 
@@ -36,8 +46,8 @@ namespace FileReader.Core
             return closestPointsDictionary;
         }
 
-        // Sorts a dictionary of type key(point),distance(double) by the distance
-        internal static Dictionary<Point, double> SortByDistance(Dictionary<Point, double> distance)
+        // Sorts a dictionary of type (key(point),distance(double)) by the distance( the value of the dictionary)
+        public static Dictionary<Point, double> SortByDistance(Dictionary<Point, double> distance)
         {
             var myList = distance.ToList();
 
@@ -46,7 +56,6 @@ namespace FileReader.Core
             foreach (var value in myList)
             {
                 KeyValuePair<Point, double> myVal = (KeyValuePair<Point, double>)value;
-                //Console.WriteLine(string.Format("{0}: {1}", myVal.Key.GetPoints(), myVal.Value));
             }
             
             var sortedDictionary = myList.ToDictionary();                        
@@ -60,6 +69,33 @@ namespace FileReader.Core
             //}
 
             return sortedDictionary;
+        }
+
+        public static Dictionary<Point, double> MeasureDistanceToCamera(Dictionary<Point, double> distanceToCameraDictionary, Point cameraPoint, Point[] points)
+        {
+            double[] ArrayAbs = new double[points.Length];
+
+            for (int i = 0; i < points.Length; i++)
+            {
+                ArrayAbs[i] = (Math.Abs(points[i].X - cameraPoint.X) + Math.Abs(points[i].Y - cameraPoint.Y) + Math.Abs(points[i].Z - cameraPoint.Z));
+                distanceToCameraDictionary.Add(points[i], ArrayAbs[i]);
+            }
+
+            return distanceToCameraDictionary;
+        }
+
+        internal static Dictionary<Point, double> MeasureDistanceToRay(Dictionary<Point, double> distanceToRayDictionary, Point cameraPoint, Point[] points)
+        {
+            double[] ArrayDistToLine = new double[points.Length];
+            Point endOfLine = new Point(131551.964, 398797151, 6.535);
+
+            for (int i = 0; i < points.Length; i++)
+            {
+
+                ArrayDistToLine[i] = ShortDistance(cameraPoint, endOfLine, points[i]);
+                distanceToRayDictionary.Add(points[i], ArrayDistToLine[i]);
+            }
+            return distanceToRayDictionary;
         }
 
         // File to table that is used for chunk loading a file
@@ -80,7 +116,7 @@ namespace FileReader.Core
                     table.Columns.Add(header); // Make Columns in Datatabel based on headers
                 }
 
-                else // Not really used but should make headers if none are found
+                else // Makes headers if none are found
                 {
                     table.Columns.Add("Field" + num); // Create fields header if heading is false
                     num++;
