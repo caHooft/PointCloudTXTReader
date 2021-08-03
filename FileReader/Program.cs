@@ -5,6 +5,7 @@ using FileReader.Core;
 using System.IO;
 using System.Globalization;
 using System.Data;
+using System.Collections;
 
 namespace FileReader
 {
@@ -20,10 +21,10 @@ namespace FileReader
             int Limit = 100000;
 
             Point cameraPoint = new Point(131453.074, 398786.554, 16.889);
-            
 
             Dictionary<Point, double> distanceFromRayDictionary = new Dictionary<Point, double>();
             Dictionary<Point, double> distanceFromCameraDictionary = new Dictionary<Point, double>();
+            Dictionary<Point, Tuple<double, double>> distancesDictionary = new Dictionary<Point, Tuple<double, double>>();
 
             Console.WriteLine("Console TXT reader\r");
             Console.WriteLine("------------------------\n");
@@ -34,10 +35,13 @@ namespace FileReader
                 Console.WriteLine("\tq - ReadFileInBatch");
                 Console.WriteLine("\tw - Measure distance from the points to the camera");
                 Console.WriteLine("\te - Measure distance from the points to the ray");
+                Console.WriteLine("\tt - Merging dictionaries");
+                Console.WriteLine("\tr - Check if points are within filtering cone");
                 Console.WriteLine("\ta - Sort Dictionary based on distance from point to camera");
                 Console.WriteLine("\ts - Sort Dictionary based on distance from point to ray");
                 Console.WriteLine("\tp - Static test distance from the points to the ray");
-                Console.WriteLine("\tl - Quit application");                
+                Console.WriteLine("\to - Static test merging dictionaries");
+                Console.WriteLine("\tl - Quit application");
 
                 Console.Write("Your option? ");
 
@@ -58,12 +62,14 @@ namespace FileReader
                     case "w":
                         Console.WriteLine($"Measure distance from the points to the camera");
                         Extension.MeasureDistanceToCamera(distanceFromCameraDictionary, cameraPoint, points);
+
                         Console.WriteLine("\n");
                         break;
 
                     case "e":
                         Console.WriteLine($"Measure distance from the points to the camera");
                         Extension.MeasureDistanceToRay(distanceFromRayDictionary, cameraPoint, points);
+
                         Console.WriteLine("\n");
                         break;
 
@@ -75,9 +81,25 @@ namespace FileReader
                         Point c = new Point(2, 2, 2);
 
                         Console.WriteLine("Shortest distance is : " + Extension.ShortDistance(a, b, c));
+                        Console.WriteLine("\n");
+                        break;
+
+                    case "t":
+                        Console.WriteLine($"Merging dictionaries");
+
+                        DictionaryMerger(distanceFromCameraDictionary, distanceFromRayDictionary);
 
                         Console.WriteLine("\n");
+                        Console.WriteLine("\n");
+                        break;
 
+                    case "r":
+                        Console.WriteLine($"Filtering points based on cone from ray");
+
+                        //Dictionary<Point, double> ClosestPointsToRay = Extension.GetClosestPoints(distanceFromRayDictionary, 10);
+
+                        Console.WriteLine("\n");
+                        Console.WriteLine("\n");
                         break;
 
                     case "a":
@@ -93,7 +115,16 @@ namespace FileReader
                         Console.WriteLine($"Sorting dictionary based on distance to ray please stand by ");
                         Console.WriteLine($"The closest 10 points are = ");
                         Dictionary<Point, double> ClosestPointsToRay = Extension.GetClosestPoints(distanceFromRayDictionary, 10);
-                        
+
+                        Console.WriteLine("\n");
+                        Console.WriteLine("\n");
+                        break;
+
+                    case "0":
+                        Console.WriteLine($"Merging dictionaries");
+
+                        DictionaryMerger(distanceFromCameraDictionary, distanceFromRayDictionary);
+
                         Console.WriteLine("\n");
                         Console.WriteLine("\n");
                         break;
@@ -106,7 +137,7 @@ namespace FileReader
                         Console.WriteLine($"please enter a,s,d,q or f");
                         break;
                 }
-              
+
                 if (app == true)
                 {
                     Console.Write("Press 'c' and Enter to close the app, or press any other key and Enter to continue: ");
@@ -127,18 +158,18 @@ namespace FileReader
         /// build a selection based on distance based on x,y,z distance to camera positiom
         /// Than sort selection with the shortest distance at the start of the array/ list/ collection/ other way to safe information'
         /// </summary>
-        {            
+        {
 
         }
 
         // Read file in chunks 
         // Every chunk is converted 
         internal static void ReadFileInBatch(string Path, int Limit, Point cameraPoint)
-        {            
+        {
             if (File.Exists(Path)) // Check if local path is valid
             {
                 int TotalRows = File.ReadLines(Path).Count(); // Count the number of rows
-                points = new Point[TotalRows-1];
+                points = new Point[TotalRows - 1];
 
                 for (int Offset = 0; Offset < TotalRows; Offset += Limit)
                 {
@@ -162,41 +193,41 @@ namespace FileReader
 
                         double temp;
 
-                        //double.TryParse(table.Rows[i - Offset]["X"].ToString(), NumberStyles.AllowDecimalPoint, System.Globalization.CultureInfo.InvariantCulture, out temp);
-                        //points[i].X = temp;
+                        double.TryParse(table.Rows[i - Offset]["X"].ToString(), NumberStyles.AllowDecimalPoint, System.Globalization.CultureInfo.InvariantCulture, out temp);
+                        points[i].X = temp;
 
-                        //double.TryParse(table.Rows[i - Offset]["Y"].ToString(), NumberStyles.AllowDecimalPoint, System.Globalization.CultureInfo.InvariantCulture, out temp);
-                        //points[i].Y = temp;
+                        double.TryParse(table.Rows[i - Offset]["Y"].ToString(), NumberStyles.AllowDecimalPoint, System.Globalization.CultureInfo.InvariantCulture, out temp);
+                        points[i].Y = temp;
 
-                        //double.TryParse(table.Rows[i - Offset]["Z"].ToString(), NumberStyles.AllowDecimalPoint, System.Globalization.CultureInfo.InvariantCulture, out temp);
-                        //points[i].Z = temp;
+                        double.TryParse(table.Rows[i - Offset]["Z"].ToString(), NumberStyles.AllowDecimalPoint, System.Globalization.CultureInfo.InvariantCulture, out temp);
+                        points[i].Z = temp;
 
-                        if (double.TryParse(table.Rows[i - Offset]["X"].ToString(), NumberStyles.AllowDecimalPoint, System.Globalization.CultureInfo.InvariantCulture, out temp))
-                        {
-                            points[i].X = temp;
-                        }
-                        else
-                        {
-                            Console.WriteLine("Unable to convert X"[i]);
-                        }
+                        //if (double.TryParse(table.Rows[i - Offset]["X"].ToString(), NumberStyles.AllowDecimalPoint, System.Globalization.CultureInfo.InvariantCulture, out temp))
+                        //{
+                        //    points[i].X = temp;
+                        //}
+                        //else
+                        //{
+                        //    Console.WriteLine("Unable to convert X"[i]);
+                        //}
 
-                        if (double.TryParse(table.Rows[i - Offset]["Y"].ToString(), NumberStyles.AllowDecimalPoint, System.Globalization.CultureInfo.InvariantCulture, out temp))
-                        {
-                            points[i].Y = temp;
-                        }
-                        else
-                        {
-                            Console.WriteLine("Unable to convert Y"[i]);
-                        }
+                        //if (double.TryParse(table.Rows[i - Offset]["Y"].ToString(), NumberStyles.AllowDecimalPoint, System.Globalization.CultureInfo.InvariantCulture, out temp))
+                        //{
+                        //    points[i].Y = temp;
+                        //}
+                        //else
+                        //{
+                        //    Console.WriteLine("Unable to convert Y"[i]);
+                        //}
 
-                        if (double.TryParse(table.Rows[i - Offset]["Z"].ToString(), NumberStyles.AllowDecimalPoint, System.Globalization.CultureInfo.InvariantCulture, out temp))
-                        {
-                            points[i].Z = temp;
-                        }
-                        else
-                        {
-                            Console.WriteLine("Unable to convert Z"[i]);
-                        }
+                        //if (double.TryParse(table.Rows[i - Offset]["Z"].ToString(), NumberStyles.AllowDecimalPoint, System.Globalization.CultureInfo.InvariantCulture, out temp))
+                        //{
+                        //    points[i].Z = temp;
+                        //}
+                        //else
+                        //{
+                        //    Console.WriteLine("Unable to convert Z"[i]);
+                        //}
 
                         //if (i < (Limit - 1))
                         //{
@@ -243,47 +274,109 @@ namespace FileReader
             }
         }
 
-        internal static Dictionary<Point, double> MeasureDistanceToCamera(Dictionary<Point, double> distanceToCameraDictionary, Point cameraPoint, Point[] points, int iterations)
-        {           
-            double[] ArrayAbs = new double[points.Length];
-
-            for (int i = 0; i < iterations; i++)
+        private class KeyEqualityComparer<T, U> : IEqualityComparer<KeyValuePair<T, U>>
+        {
+            public bool Equals(KeyValuePair<T, U> x, KeyValuePair<T, U> y)
             {
-                ArrayAbs[i] = (Math.Abs(points[i].X - cameraPoint.X) + Math.Abs(points[i].Y - cameraPoint.Y) + Math.Abs(points[i].Z - cameraPoint.Z));
-
-                distanceToCameraDictionary.Add(points[i], ArrayAbs[i]);
+                return x.Key.Equals(y.Key);
             }
 
-            //Debugging the not sorted Dictionary with distances can be done here
-            //foreach (var value in distanceToCameraDictionary)
-            //{
-            //    KeyValuePair<Point, double> myVal = (KeyValuePair<Point, double>)value;
-            //    Console.WriteLine(string.Format("{0}: {1}", myVal.Key.GetPoints(), myVal.Value));
-            //}
-
-            return distanceToCameraDictionary;
+            public int GetHashCode(KeyValuePair<T, U> obj)
+            {
+                return obj.Key.GetHashCode();
+            }
         }
 
-        internal static Dictionary<Point, double> MeasureDistanceToRay(Dictionary<Point, double> distanceToRayDictionary, Point cameraPoint, Point[] points, int iterations)
+        internal static void DictionaryMerger(Dictionary<Point, double> distanceToCameraDictionary, Dictionary<Point, double> distanceToRayDictionary)
         {
-            double[] ArrayDistToLine = new double[points.Length];
-            Point endOfLine = new Point(131551.964, 398797151, 6.535);
+            Dictionary<Point, Tuple<double, double>> resultsNew = new Dictionary<Point, Tuple<double, double>>();            
 
-            for (int i = 0; i < iterations; i++)
-            {                               
-
-                ArrayDistToLine[i]= Extension.ShortDistance(cameraPoint, endOfLine, points[i]);
-                distanceToRayDictionary.Add(points[i], ArrayDistToLine[i]);
+            foreach (KeyValuePair<Point, double> kvp in distanceToCameraDictionary)
+            {
+                resultsNew[kvp.Key] = new Tuple<double, double>(kvp.Value, 2);
             }
 
-            //Debugging the not sorted Dictionary with distances can be done here
-            //foreach (var value in distanceToCameraDictionary)
-            //{
-            //    KeyValuePair<Point, double> myVal = (KeyValuePair<Point, double>)value;
-            //    Console.WriteLine(string.Format("{0}: {1}", myVal.Key.GetPoints(), myVal.Value));
-            //}
+            foreach (KeyValuePair<Point, double> kvp in distanceToRayDictionary)
+            {
+                resultsNew[kvp.Key] = new Tuple<double, double>(resultsNew[kvp.Key].Item1, kvp.Value);
+            }
 
-            return distanceToRayDictionary;
+            foreach (var value in resultsNew)
+            {
+                KeyValuePair<Point, Tuple<double, double>> myVal = (KeyValuePair<Point, Tuple<double, double>>)value;
+                Console.WriteLine(string.Format("{0}: {1}", myVal.Value.Item1, myVal.Value.Item2));
+            }
+        }
+
+
+
+        internal static Dictionary<Point, double> FilterPoints(Dictionary<Point, double> filteredDictionary, Dictionary<Point, Tuple<double, double>> distancesDictionary)
+        {          
+            foreach (var value in distancesDictionary)
+            {
+                if (Math.Atan(value.Value.Item1/value.Value.Item2) < 5)
+                {
+                    filteredDictionary.Add(value.Key, value.Value.Item2);
+                }
+            }
+
+            //Debugging 
+            foreach (var value in filteredDictionary)
+            {
+                KeyValuePair<Point, double> myVal = (KeyValuePair<Point, double>)value;
+                Console.WriteLine(string.Format("{0}: {1}", myVal.Key.GetPoints(), myVal.Value));
+            }
+
+            return filteredDictionary;
+        }
+
+        internal static void DictionaryMergerStatic()
+        {
+            Dictionary<double, double> testDict1 = new Dictionary<double, double>();
+            Dictionary<double, double> testDict2 = new Dictionary<double, double>();
+
+            testDict1.Add(1, 11);
+            testDict1.Add(2, 12);
+            testDict1.Add(3, 13);
+            testDict1.Add(4, 14);
+            testDict1.Add(5, 15);
+
+            testDict2.Add(1, 111);
+            testDict2.Add(2, 222);
+            testDict2.Add(3, 333);
+            testDict2.Add(4, 444);
+            testDict2.Add(5, 555);
+
+            Dictionary<double, double> results = new Dictionary<double, double>(testDict1);
+
+            Dictionary<double, Tuple<double, double>> resultsNew = new Dictionary<double, Tuple<double, double>>();
+
+            foreach (KeyValuePair<double, double> kvp in testDict2)
+            {
+                results[kvp.Key] = kvp.Value;
+            }
+
+            foreach (KeyValuePair<double, double> kvp in testDict1)
+            {
+                resultsNew[kvp.Key] = new Tuple<double, double>(kvp.Value, 2);
+            }
+
+            foreach (KeyValuePair<double, double> kvp in testDict2)
+            {
+                resultsNew[kvp.Key] = new Tuple<double, double>(resultsNew[kvp.Key].Item1, kvp.Value);
+            }
+
+            foreach (var value in results)
+            {
+                KeyValuePair<double, double> myVal = (KeyValuePair<double, double>)value;
+                Console.WriteLine(string.Format("{0}", myVal.Value));
+            }
+
+            foreach (var value in resultsNew)
+            {
+                KeyValuePair<double, Tuple<double, double>> myVal = (KeyValuePair<double, Tuple<double, double>>)value;
+                Console.WriteLine(string.Format("{0}: {1}", myVal.Value.Item1, myVal.Value.Item2));
+            }
         }
     }
 }

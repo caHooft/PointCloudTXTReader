@@ -60,6 +60,49 @@ namespace FileReader
 
 }
 
+//internal static Dictionary<Point, double> MeasureDistanceToRay(Dictionary<Point, double> distanceToRayDictionary, Point cameraPoint, Point[] points, int iterations)
+//{
+//    double[] ArrayDistToLine = new double[points.Length];
+//    Point endOfLine = new Point(131551.964, 398797151, 6.535);
+
+//    for (int i = 0; i < iterations; i++)
+//    {
+
+//        ArrayDistToLine[i] = Extension.ShortDistance(cameraPoint, endOfLine, points[i]);
+//        distanceToRayDictionary.Add(points[i], ArrayDistToLine[i]);
+//    }
+
+//    //Debugging the not sorted Dictionary with distances can be done here
+//    //foreach (var value in distanceToCameraDictionary)
+//    //{
+//    //    KeyValuePair<Point, double> myVal = (KeyValuePair<Point, double>)value;
+//    //    Console.WriteLine(string.Format("{0}: {1}", myVal.Key.GetPoints(), myVal.Value));
+//    //}
+
+//    return distanceToRayDictionary;
+//}
+
+//internal static Dictionary<Point, double> MeasureDistanceToCamera(Dictionary<Point, double> distanceToCameraDictionary, Point cameraPoint, Point[] points, int iterations)
+//{
+//    double[] ArrayAbs = new double[points.Length];
+
+//    for (int i = 0; i < iterations; i++)
+//    {
+//        ArrayAbs[i] = (Math.Abs(points[i].X - cameraPoint.X) + Math.Abs(points[i].Y - cameraPoint.Y) + Math.Abs(points[i].Z - cameraPoint.Z));
+
+//        distanceToCameraDictionary.Add(points[i], ArrayAbs[i]);
+//    }
+
+//    //Debugging the not sorted Dictionary with distances can be done here
+//    //foreach (var value in distanceToCameraDictionary)
+//    //{
+//    //    KeyValuePair<Point, double> myVal = (KeyValuePair<Point, double>)value;
+//    //    Console.WriteLine(string.Format("{0}: {1}", myVal.Key.GetPoints(), myVal.Value));
+//    //}
+
+//    return distanceToCameraDictionary;
+//}
+
 //var myList = distanceFromCameraDictionary.ToList();
 
 //myList.Sort((pair1, pair2) => pair1.Value.CompareTo(pair2.Value));
