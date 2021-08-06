@@ -24,6 +24,7 @@ namespace FileReader
 
             Dictionary<Point, double> distanceFromRayDictionary = new Dictionary<Point, double>();
             Dictionary<Point, double> distanceFromCameraDictionary = new Dictionary<Point, double>();
+            Dictionary<Point, Tuple<double, double>> filteredDictionary = new Dictionary<Point, Tuple<double, double>>();
             Dictionary<Point, Tuple<double, double>> distancesDictionary = new Dictionary<Point, Tuple<double, double>>();
 
             Console.WriteLine("Console TXT reader\r");
@@ -35,8 +36,9 @@ namespace FileReader
                 Console.WriteLine("\tq - ReadFileInBatch");
                 Console.WriteLine("\tw - Measure distance from the points to the camera");
                 Console.WriteLine("\te - Measure distance from the points to the ray");
-                Console.WriteLine("\tt - Merging dictionaries");
-                Console.WriteLine("\tr - Check if points are within filtering cone");
+                Console.WriteLine("\tr - Merging dictionaries");
+                Console.WriteLine("\tt - Check if points are within filtering cone");
+                Console.WriteLine("\ty - Get Nearest Object In Cone");
                 Console.WriteLine("\ta - Sort Dictionary based on distance from point to camera");
                 Console.WriteLine("\ts - Sort Dictionary based on distance from point to ray");
                 Console.WriteLine("\tp - Static test distance from the points to the ray");
@@ -49,26 +51,67 @@ namespace FileReader
                 {
                     case "q":
                         Console.WriteLine($"Your result: = ");
+
                         ReadFileInBatch(Path, Limit, cameraPoint);  // Read file in chunks
+
                         Console.WriteLine("\n");
                         break;
 
-                    //case "1":
-                    //    Console.WriteLine($"Your result: = ");
-                    //    //parseFromStringToDouble(points);  // convert table to doubles
-                    //    Console.WriteLine("\n");
-                    //    break;
-
                     case "w":
                         Console.WriteLine($"Measure distance from the points to the camera");
+
                         Extension.MeasureDistanceToCamera(distanceFromCameraDictionary, cameraPoint, points);
 
                         Console.WriteLine("\n");
                         break;
 
                     case "e":
-                        Console.WriteLine($"Measure distance from the points to the camera");
+                        Console.WriteLine($"Measure distance from the points to the ray");
+
                         Extension.MeasureDistanceToRay(distanceFromRayDictionary, cameraPoint, points);
+
+                        Console.WriteLine("\n");
+                        break;
+
+                    case "t":
+                        Console.WriteLine($"Filtering points based on cone from ray");
+
+                        FilterPoints(filteredDictionary, distancesDictionary);
+
+                        Console.WriteLine("\n");
+                        break;
+
+                    case "y":
+                        Console.WriteLine($"Get Nearest Object In Cone");
+
+                        GetNearestObjectInCone(filteredDictionary);
+
+                        Console.WriteLine("\n");
+                        break;
+
+
+                    case "r":
+                        Console.WriteLine($"Merging dictionaries");
+
+                        distancesDictionary = DictionaryMerger(distanceFromCameraDictionary, distanceFromRayDictionary);
+
+                        Console.WriteLine("\n");                       
+                        break;
+
+                    case "a":
+                        Console.WriteLine($"Sorting dictionary based on distance to camera please stand by ");
+                        Console.WriteLine($"The closest 10 points based on camera position are = ");
+
+                        Dictionary<Point, double> ClosestPointsToCamera = Extension.GetClosestPoints(distanceFromCameraDictionary, 10);
+
+                        Console.WriteLine("\n");
+                        break;
+
+                    case "s":
+                        Console.WriteLine($"Sorting dictionary based on distance to ray please stand by ");
+                        Console.WriteLine($"The closest 10 points are = ");
+
+                        Dictionary<Point, double> ClosestPointsToRay = Extension.GetClosestPoints(distanceFromRayDictionary, 10);
 
                         Console.WriteLine("\n");
                         break;
@@ -84,48 +127,11 @@ namespace FileReader
                         Console.WriteLine("\n");
                         break;
 
-                    case "t":
+                    case "o":
                         Console.WriteLine($"Merging dictionaries");
 
-                        DictionaryMerger(distanceFromCameraDictionary, distanceFromRayDictionary);
+                        DictionaryMergerStatic();
 
-                        Console.WriteLine("\n");
-                        Console.WriteLine("\n");
-                        break;
-
-                    case "r":
-                        Console.WriteLine($"Filtering points based on cone from ray");
-
-                        //Dictionary<Point, double> ClosestPointsToRay = Extension.GetClosestPoints(distanceFromRayDictionary, 10);
-
-                        Console.WriteLine("\n");
-                        Console.WriteLine("\n");
-                        break;
-
-                    case "a":
-                        Console.WriteLine($"Sorting dictionary based on distance to camera please stand by ");
-                        Console.WriteLine($"The closest 10 points based on camera position are = ");
-                        Dictionary<Point, double> ClosestPointsToCamera = Extension.GetClosestPoints(distanceFromCameraDictionary, 10);
-
-                        Console.WriteLine("\n");
-                        Console.WriteLine("\n");
-                        break;
-
-                    case "s":
-                        Console.WriteLine($"Sorting dictionary based on distance to ray please stand by ");
-                        Console.WriteLine($"The closest 10 points are = ");
-                        Dictionary<Point, double> ClosestPointsToRay = Extension.GetClosestPoints(distanceFromRayDictionary, 10);
-
-                        Console.WriteLine("\n");
-                        Console.WriteLine("\n");
-                        break;
-
-                    case "0":
-                        Console.WriteLine($"Merging dictionaries");
-
-                        DictionaryMerger(distanceFromCameraDictionary, distanceFromRayDictionary);
-
-                        Console.WriteLine("\n");
                         Console.WriteLine("\n");
                         break;
 
@@ -141,6 +147,7 @@ namespace FileReader
                 if (app == true)
                 {
                     Console.Write("Press 'c' and Enter to close the app, or press any other key and Enter to continue: ");
+
                     if (Console.ReadLine() == "c")
                     {
                         app = false;
@@ -149,17 +156,6 @@ namespace FileReader
 
                 Console.WriteLine("\n");
             }
-        }
-        internal static void PickPoint(Point cameraPoint)
-        /// <summary>
-        /// Make a cone from the camera position
-        /// Take all points within the where te angle is less than angle tollerance(2-5 degrees)
-        /// Sort all of these points based on the shortest distance to the camera position
-        /// build a selection based on distance based on x,y,z distance to camera positiom
-        /// Than sort selection with the shortest distance at the start of the array/ list/ collection/ other way to safe information'
-        /// </summary>
-        {
-
         }
 
         // Read file in chunks 
@@ -178,6 +174,7 @@ namespace FileReader
                         (Offset + Limit) < TotalRows ? Offset + Limit : TotalRows,
                         TotalRows, Offset, Limit
                     );
+                    Console.WriteLine(DateTime.Now.ToString());
 
                     Console.WriteLine(Logs);
 
@@ -228,30 +225,9 @@ namespace FileReader
                         //{
                         //    Console.WriteLine("Unable to convert Z"[i]);
                         //}
-
-                        //if (i < (Limit - 1))
-                        //{
-                        //    iterations = 22563;
-                        //}
-                        //else
-                        //{
-                        //    iterations = Limit;
-                        //}
                     }
-
-                    //MeasureDistanceToCamera(distanceFromCameraDictionary, cameraPoint, points, iterations);
-
-                    //Extension.MeasureDistanceToCamera(distanceFromCameraDictionary, cameraPoint, points, Limit);
-
-                    //distanceFromCameraDictionary= Extension.MeasureDistanceToCamera(cameraPoint, points, offset: Offset, limit: Limit);
-
-                    //MeasureDistanceToRay(DistanceFromRayDictionary, cameraPoint, points, iterations);
-
-                    // prints entire datatable
+                    // prints datatable
                     //table.TableToFile(@"C:\TestFolderTXTReader\Output\Output.txt");
-
-                    // prints x,y,z values of datatable2
-                    //table2.TableToFile(@"C:\TestFolderTXTReader\Output2.txt");
                 }
             }
 
@@ -263,7 +239,7 @@ namespace FileReader
 
         /* Read Full file does not work for pointclouds*/
         internal static void ReadFullFile(string Path)
-        {
+        {            
             if (File.Exists(Path)) // Check if local path is valid
             {
                 var table = Path.FileToTable(heading: true, delimiter: '\t');
@@ -274,22 +250,36 @@ namespace FileReader
             }
         }
 
-        private class KeyEqualityComparer<T, U> : IEqualityComparer<KeyValuePair<T, U>>
+        internal static void GetNearestObjectInCone(Dictionary<Point, Tuple<double, double>> filteredDictionary)
         {
-            public bool Equals(KeyValuePair<T, U> x, KeyValuePair<T, U> y)
-            {
-                return x.Key.Equals(y.Key);
-            }
+            //filteredDictionary = Extension.SortByDistance(filteredDictionary);
 
-            public int GetHashCode(KeyValuePair<T, U> obj)
+            bool found = false;
+
+            int i = 0;
+
+            int iMax = 5;
+
+            double tol = 1;
+
+            while(found = false && i < iMax)
             {
-                return obj.Key.GetHashCode();
+                foreach (KeyValuePair<Point, Tuple<double, double>> kvp in filteredDictionary)
+                {
+                    if(Math.Abs(kvp.Value.Item2-kvp.Value.Item1)< tol)
+                    {
+                        Console.WriteLine("X={0}: Y={1}: Z={2}: {3}:",kvp.Key.X, kvp.Key.Y, kvp.Key.Z, Math.Abs(kvp.Value.Item2 - kvp.Value.Item1));
+                    }
+                   
+                }
             }
         }
 
-        internal static void DictionaryMerger(Dictionary<Point, double> distanceToCameraDictionary, Dictionary<Point, double> distanceToRayDictionary)
+        internal static Dictionary<Point, Tuple<double, double>> DictionaryMerger(Dictionary<Point, double> distanceToCameraDictionary, Dictionary<Point, double> distanceToRayDictionary)
         {
-            Dictionary<Point, Tuple<double, double>> resultsNew = new Dictionary<Point, Tuple<double, double>>();            
+            Dictionary<Point, Tuple<double, double>> resultsNew = new Dictionary<Point, Tuple<double, double>>();
+
+            Extension.SortByDistance(distanceToCameraDictionary);
 
             foreach (KeyValuePair<Point, double> kvp in distanceToCameraDictionary)
             {
@@ -301,30 +291,42 @@ namespace FileReader
                 resultsNew[kvp.Key] = new Tuple<double, double>(resultsNew[kvp.Key].Item1, kvp.Value);
             }
 
-            foreach (var value in resultsNew)
-            {
-                KeyValuePair<Point, Tuple<double, double>> myVal = (KeyValuePair<Point, Tuple<double, double>>)value;
-                Console.WriteLine(string.Format("{0}: {1}", myVal.Value.Item1, myVal.Value.Item2));
-            }
+            //foreach (var value in resultsNew)
+            //{
+            //    KeyValuePair<Point, Tuple<double, double>> myVal = (KeyValuePair<Point, Tuple<double, double>>)value;
+            //    Console.WriteLine(string.Format("{0}: {1}", myVal.Value.Item1, myVal.Value.Item2));
+            //}
+
+            return resultsNew;
         }
 
+        internal static double fromDegreesToRadians(double degrees)
+        {
+            double radian = (Math.PI /180) * degrees;
 
+            return radian;
+        }
 
-        internal static Dictionary<Point, double> FilterPoints(Dictionary<Point, double> filteredDictionary, Dictionary<Point, Tuple<double, double>> distancesDictionary)
-        {          
+        internal static Dictionary<Point, Tuple<double, double>> FilterPoints(Dictionary<Point, Tuple<double, double>> filteredDictionary, Dictionary<Point, Tuple<double, double>> distancesDictionary)
+        {
+            double radians = fromDegreesToRadians(5);
+
             foreach (var value in distancesDictionary)
             {
-                if (Math.Atan(value.Value.Item1/value.Value.Item2) < 5)
+                //Console.WriteLine(string.Format("distance to camera= {0}: distance to ray = {1}: arcsin(distance to ray/distance to camera)= {2}:", value.Value.Item1, value.Value.Item2, Math.Asin(value.Value.Item2 / value.Value.Item1)));
+
+                if (Math.Asin(value.Value.Item2/value.Value.Item1) < radians)
                 {
-                    filteredDictionary.Add(value.Key, value.Value.Item2);
+                    filteredDictionary.Add(value.Key, new Tuple<double,double>(value.Value.Item1, value.Value.Item2));
                 }
             }
 
             //Debugging 
             foreach (var value in filteredDictionary)
-            {
-                KeyValuePair<Point, double> myVal = (KeyValuePair<Point, double>)value;
-                Console.WriteLine(string.Format("{0}: {1}", myVal.Key.GetPoints(), myVal.Value));
+            {                
+                KeyValuePair<Point, Tuple<double, double>> myVal = (KeyValuePair<Point, Tuple<double, double>>)value;
+                Console.WriteLine(string.Format("{0}: {1}", myVal.Value.Item1, myVal.Value.Item2));
+                
             }
 
             return filteredDictionary;
@@ -334,27 +336,15 @@ namespace FileReader
         {
             Dictionary<double, double> testDict1 = new Dictionary<double, double>();
             Dictionary<double, double> testDict2 = new Dictionary<double, double>();
+            Dictionary<double, Tuple<double, double>> resultsNew = new Dictionary<double, Tuple<double, double>>();
 
             testDict1.Add(1, 11);
             testDict1.Add(2, 12);
             testDict1.Add(3, 13);
-            testDict1.Add(4, 14);
-            testDict1.Add(5, 15);
 
             testDict2.Add(1, 111);
             testDict2.Add(2, 222);
             testDict2.Add(3, 333);
-            testDict2.Add(4, 444);
-            testDict2.Add(5, 555);
-
-            Dictionary<double, double> results = new Dictionary<double, double>(testDict1);
-
-            Dictionary<double, Tuple<double, double>> resultsNew = new Dictionary<double, Tuple<double, double>>();
-
-            foreach (KeyValuePair<double, double> kvp in testDict2)
-            {
-                results[kvp.Key] = kvp.Value;
-            }
 
             foreach (KeyValuePair<double, double> kvp in testDict1)
             {
@@ -366,17 +356,24 @@ namespace FileReader
                 resultsNew[kvp.Key] = new Tuple<double, double>(resultsNew[kvp.Key].Item1, kvp.Value);
             }
 
-            foreach (var value in results)
-            {
-                KeyValuePair<double, double> myVal = (KeyValuePair<double, double>)value;
-                Console.WriteLine(string.Format("{0}", myVal.Value));
-            }
-
             foreach (var value in resultsNew)
             {
                 KeyValuePair<double, Tuple<double, double>> myVal = (KeyValuePair<double, Tuple<double, double>>)value;
                 Console.WriteLine(string.Format("{0}: {1}", myVal.Value.Item1, myVal.Value.Item2));
             }
+
+            //Dictionary<double, double> results = new Dictionary<double, double>(testDict1);
+
+            //foreach (KeyValuePair<double, double> kvp in testDict2)
+            //{
+            //    results[kvp.Key] = kvp.Value;
+            //}
+
+            //foreach (var value in results)
+            //{
+            //    KeyValuePair<double, double> myVal = (KeyValuePair<double, double>)value;
+            //    Console.WriteLine(string.Format("{0}", myVal.Value));
+            //}
         }
     }
 }
