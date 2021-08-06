@@ -25,6 +25,7 @@ namespace FileReader
             Dictionary<Point, double> distanceFromRayDictionary = new Dictionary<Point, double>();
             Dictionary<Point, double> distanceFromCameraDictionary = new Dictionary<Point, double>();
             Dictionary<Point, Tuple<double, double>> filteredDictionary = new Dictionary<Point, Tuple<double, double>>();
+            Dictionary<Point, double> filteredDistanceFromCameraDictionary = new Dictionary<Point, double>();
             Dictionary<Point, Tuple<double, double>> distancesDictionary = new Dictionary<Point, Tuple<double, double>>();
 
             Console.WriteLine("Console TXT reader\r");
@@ -76,7 +77,7 @@ namespace FileReader
                     case "t":
                         Console.WriteLine($"Filtering points based on cone from ray");
 
-                        FilterPoints(filteredDictionary, distancesDictionary);
+                        FilterPoints(filteredDistanceFromCameraDictionary, distancesDictionary);
 
                         Console.WriteLine("\n");
                         break;
@@ -84,7 +85,7 @@ namespace FileReader
                     case "y":
                         Console.WriteLine($"Get Nearest Object In Cone");
 
-                        GetNearestObjectInCone(filteredDictionary);
+                        GetNearestObjectInCone(filteredDistanceFromCameraDictionary);
 
                         Console.WriteLine("\n");
                         break;
@@ -250,28 +251,52 @@ namespace FileReader
             }
         }
 
-        internal static void GetNearestObjectInCone(Dictionary<Point, Tuple<double, double>> filteredDictionary)
+        internal static void GetNearestObjectInCone(Dictionary<Point, double> filteredDistanceFromCameraDictionary)
         {
-            //filteredDictionary = Extension.SortByDistance(filteredDictionary);
+            filteredDistanceFromCameraDictionary = Extension.SortByDistance(filteredDistanceFromCameraDictionary);
 
             bool found = false;
 
-            int i = 0;
+            //int i = 0;
 
             int iMax = 5;
 
-            double tol = 1;
+            double tol = 0.25;
 
-            while(found = false && i < iMax)
+            //while(found = false && i < iMax)
+            //{
+            //    foreach (KeyValuePair<Point, double> kvp in filteredDistanceFromCameraDictionary)
+            //    {
+            //        if (Math.Abs(kvp.Value - kvp.Value) < tol)
+            //        {
+            //            Console.WriteLine("X={0}: Y={1}: Z={2}: Angle={3}:", kvp.Key.X, kvp.Key.Y, kvp.Key.Z, Math.Abs(kvp.Value));
+            //        }
+            //    }
+            //}
+            for (int i = 0; i < filteredDistanceFromCameraDictionary.Count; i++)
             {
-                foreach (KeyValuePair<Point, Tuple<double, double>> kvp in filteredDictionary)
+                if(i == filteredDistanceFromCameraDictionary.Count-5)
                 {
-                    if(Math.Abs(kvp.Value.Item2-kvp.Value.Item1)< tol)
-                    {
-                        Console.WriteLine("X={0}: Y={1}: Z={2}: {3}:",kvp.Key.X, kvp.Key.Y, kvp.Key.Z, Math.Abs(kvp.Value.Item2 - kvp.Value.Item1));
-                    }
-                   
+
                 }
+                else if(Math.Abs(filteredDistanceFromCameraDictionary.ElementAt(i).Value - filteredDistanceFromCameraDictionary.ElementAt(i + 1).Value) < tol
+                    && Math.Abs(filteredDistanceFromCameraDictionary.ElementAt(i).Value - filteredDistanceFromCameraDictionary.ElementAt(i + 2).Value) < tol
+                    && Math.Abs(filteredDistanceFromCameraDictionary.ElementAt(i).Value - filteredDistanceFromCameraDictionary.ElementAt(i + 3).Value) < tol
+                    && Math.Abs(filteredDistanceFromCameraDictionary.ElementAt(i).Value - filteredDistanceFromCameraDictionary.ElementAt(i + 4).Value) < tol
+                    && Math.Abs(filteredDistanceFromCameraDictionary.ElementAt(i).Value - filteredDistanceFromCameraDictionary.ElementAt(i + 5).Value) < tol)
+                {
+                    Console.WriteLine("X={0}: Y={1}: Z={2}: Angle={3}:", filteredDistanceFromCameraDictionary.ElementAt(i).Key.X , filteredDistanceFromCameraDictionary.ElementAt(i).Key.Y, filteredDistanceFromCameraDictionary.ElementAt(i).Key.Z, Math.Abs(filteredDistanceFromCameraDictionary.ElementAt(i).Value));
+                    //Console.WriteLine("X={0}: Y={1}: Z={2}: Angle={3}:", kvp.Key.X, kvp.Key.Y, kvp.Key.Z, Math.Abs(kvp.Value));
+                }
+
+                //foreach (KeyValuePair<Point, double> kvp in filteredDistanceFromCameraDictionary)
+                //{
+                //    if (Math.Abs(filteredDistanceFromCameraDictionary.ElementAt(i).Value - filteredDistanceFromCameraDictionary.ElementAt(i+1).Value) < tol)
+                //    {
+
+                //        Console.WriteLine("X={0}: Y={1}: Z={2}: Angle={3}:", kvp.Key.X, kvp.Key.Y, kvp.Key.Z, Math.Abs(kvp.Value));
+                //    }
+                //}
             }
         }
 
@@ -307,7 +332,7 @@ namespace FileReader
             return radian;
         }
 
-        internal static Dictionary<Point, Tuple<double, double>> FilterPoints(Dictionary<Point, Tuple<double, double>> filteredDictionary, Dictionary<Point, Tuple<double, double>> distancesDictionary)
+        internal static Dictionary<Point, double> FilterPoints(Dictionary<Point, double> filteredDictionary, Dictionary<Point, Tuple<double, double>> distancesDictionary)
         {
             double radians = fromDegreesToRadians(5);
 
@@ -317,15 +342,16 @@ namespace FileReader
 
                 if (Math.Asin(value.Value.Item2/value.Value.Item1) < radians)
                 {
-                    filteredDictionary.Add(value.Key, new Tuple<double,double>(value.Value.Item1, value.Value.Item2));
+                    //filteredDictionary.Add(value.Key, new Tuple<double,double>(value.Value.Item1, value.Value.Item2));
+                    filteredDictionary.Add(value.Key, value.Value.Item2);
                 }
             }
 
             //Debugging 
             foreach (var value in filteredDictionary)
             {                
-                KeyValuePair<Point, Tuple<double, double>> myVal = (KeyValuePair<Point, Tuple<double, double>>)value;
-                Console.WriteLine(string.Format("{0}: {1}", myVal.Value.Item1, myVal.Value.Item2));
+                KeyValuePair<Point, double> myVal = (KeyValuePair<Point, double>)value;
+                Console.WriteLine(string.Format("X={0}: Y={1}: Z={2}: distance to camera={3}: ", myVal.Key.X, myVal.Key.Y, myVal.Key.Z, myVal.Value));
                 
             }
 
