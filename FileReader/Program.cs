@@ -257,11 +257,13 @@ namespace FileReader
 
             bool found = false;
 
-            //int i = 0;
+            double start =0;
+
+            int iMin = 0;
 
             int iMax = 5;
 
-            double tol = 0.25;
+            double tol = 0.001;
 
             //while(found = false && i < iMax)
             //{
@@ -273,21 +275,45 @@ namespace FileReader
             //        }
             //    }
             //}
+
+
             for (int i = 0; i < filteredDistanceFromCameraDictionary.Count; i++)
             {
-                if(i == filteredDistanceFromCameraDictionary.Count-5)
+                
+                //if(i == 0)
+                //{
+                //    start = filteredDistanceFromCameraDictionary.ElementAt(i).Value;
+                //}
+
+
+                //else if(filteredDistanceFromCameraDictionary.ElementAt(i).Value < start)
+                //{
+                //    start = filteredDistanceFromCameraDictionary.ElementAt(i).Value;
+                //}                
+
+                if (i == filteredDistanceFromCameraDictionary.Count - 11)
                 {
+                    Console.WriteLine("stop");
 
                 }
-                else if(Math.Abs(filteredDistanceFromCameraDictionary.ElementAt(i).Value - filteredDistanceFromCameraDictionary.ElementAt(i + 1).Value) < tol
+                else if (i < filteredDistanceFromCameraDictionary.Count - 11 && found==false
+                    && Math.Abs(filteredDistanceFromCameraDictionary.ElementAt(i).Value - filteredDistanceFromCameraDictionary.ElementAt(i + 1).Value) < tol
                     && Math.Abs(filteredDistanceFromCameraDictionary.ElementAt(i).Value - filteredDistanceFromCameraDictionary.ElementAt(i + 2).Value) < tol
                     && Math.Abs(filteredDistanceFromCameraDictionary.ElementAt(i).Value - filteredDistanceFromCameraDictionary.ElementAt(i + 3).Value) < tol
                     && Math.Abs(filteredDistanceFromCameraDictionary.ElementAt(i).Value - filteredDistanceFromCameraDictionary.ElementAt(i + 4).Value) < tol
-                    && Math.Abs(filteredDistanceFromCameraDictionary.ElementAt(i).Value - filteredDistanceFromCameraDictionary.ElementAt(i + 5).Value) < tol)
+                    && Math.Abs(filteredDistanceFromCameraDictionary.ElementAt(i).Value - filteredDistanceFromCameraDictionary.ElementAt(i + 5).Value) < tol
+                    && Math.Abs(filteredDistanceFromCameraDictionary.ElementAt(i).Value - filteredDistanceFromCameraDictionary.ElementAt(i + 6).Value) < tol
+                    && Math.Abs(filteredDistanceFromCameraDictionary.ElementAt(i).Value - filteredDistanceFromCameraDictionary.ElementAt(i + 7).Value) < tol
+                    && Math.Abs(filteredDistanceFromCameraDictionary.ElementAt(i).Value - filteredDistanceFromCameraDictionary.ElementAt(i + 8).Value) < tol
+                    && Math.Abs(filteredDistanceFromCameraDictionary.ElementAt(i).Value - filteredDistanceFromCameraDictionary.ElementAt(i + 9).Value) < tol
+                    && Math.Abs(filteredDistanceFromCameraDictionary.ElementAt(i).Value - filteredDistanceFromCameraDictionary.ElementAt(i + 10).Value) < tol)
                 {
-                    Console.WriteLine("X={0}: Y={1}: Z={2}: Angle={3}:", filteredDistanceFromCameraDictionary.ElementAt(i).Key.X , filteredDistanceFromCameraDictionary.ElementAt(i).Key.Y, filteredDistanceFromCameraDictionary.ElementAt(i).Key.Z, Math.Abs(filteredDistanceFromCameraDictionary.ElementAt(i).Value));
+                    found = true;
+                    Console.WriteLine("X={0}: Y={1}: Z={2}", filteredDistanceFromCameraDictionary.ElementAt(i).Key.X, filteredDistanceFromCameraDictionary.ElementAt(i).Key.Y, filteredDistanceFromCameraDictionary.ElementAt(i).Key.Z);
                     //Console.WriteLine("X={0}: Y={1}: Z={2}: Angle={3}:", kvp.Key.X, kvp.Key.Y, kvp.Key.Z, Math.Abs(kvp.Value));
                 }
+
+
 
                 //foreach (KeyValuePair<Point, double> kvp in filteredDistanceFromCameraDictionary)
                 //{
@@ -298,13 +324,12 @@ namespace FileReader
                 //    }
                 //}
             }
+            Console.WriteLine("closest point with 5 neighbouring points = {0}", start);
         }
 
         internal static Dictionary<Point, Tuple<double, double>> DictionaryMerger(Dictionary<Point, double> distanceToCameraDictionary, Dictionary<Point, double> distanceToRayDictionary)
         {
             Dictionary<Point, Tuple<double, double>> resultsNew = new Dictionary<Point, Tuple<double, double>>();
-
-            Extension.SortByDistance(distanceToCameraDictionary);
 
             foreach (KeyValuePair<Point, double> kvp in distanceToCameraDictionary)
             {
