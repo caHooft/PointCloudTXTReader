@@ -15,7 +15,7 @@ using System.Collections;
 
 namespace FileReader.Core
 {
-    static class Extension
+    public static class Extension
     {
         // Calculates the shortest distance between any Point given and any line given
         public static double ShortDistance(Point line_point1, Point line_point2, Point point)
@@ -84,7 +84,7 @@ namespace FileReader.Core
             return distanceToCameraDictionary;
         }
 
-        internal static Dictionary<Point, double> MeasureDistanceToRay(Dictionary<Point, double> distanceToRayDictionary, Point cameraPoint, Point[] points)
+        public static Dictionary<Point, double> MeasureDistanceToRay(Dictionary<Point, double> distanceToRayDictionary, Point cameraPoint, Point[] points)
         {
             double[] ArrayDistToLine = new double[points.Length];
             Point endOfLine = new Point(131551.964, 398797151, 6.535);
@@ -92,6 +92,40 @@ namespace FileReader.Core
             for (int i = 0; i < points.Length; i++)
             {
 
+                ArrayDistToLine[i] = ShortDistance(cameraPoint, endOfLine, points[i]);
+                distanceToRayDictionary.Add(points[i], ArrayDistToLine[i]);
+            }
+            return distanceToRayDictionary;
+        }
+
+        public static Dictionary<Point, double> DynamicMeasureDistanceToRay(Dictionary<Point, double> distanceToRayDictionary, Point cameraPoint, Point[] points, Vector vector)
+        {
+            double[] ArrayDistToLine = new double[points.Length];
+
+            Vector squaredValues = new Vector(0,0,0);
+
+            Point endOfLine = new Point(131551.964, 398797151, 6.535);
+
+            //Console.WriteLine("X= old{0} Y= old{1} Z= old {2}", endOfLine.X, endOfLine.Y, endOfLine.Z);
+
+            Console.WriteLine("X= vectorInput{0} Y= vectorInput{1} Z= vectorInput {2}", vector.X, vector.Y, vector.Z);
+
+            squaredValues.X = Math.Pow(vector.X, 2);
+            squaredValues.Y = Math.Pow(vector.Y, 2);
+            squaredValues.Z = Math.Pow(vector.Z, 2);
+
+            double magnitude = squaredValues.X + squaredValues.Y + squaredValues.Z;
+
+            Console.WriteLine("X= squaredValues{0} Y= squaredValues{1} Z= squaredValues {2} Magnitude= {3}", squaredValues.X, squaredValues.Y, squaredValues.Z, magnitude);
+
+            endOfLine.X = vector.X / Math.Sqrt(magnitude);
+            endOfLine.Y = vector.Y / Math.Sqrt(magnitude);
+            endOfLine.Z = vector.Z / Math.Sqrt(magnitude);
+
+            Console.WriteLine("X= endOfLine{0} Y= endOfLine{1} Z= endOfLine {2}", endOfLine.X, endOfLine.Y, endOfLine.Z);
+
+            for (int i = 0; i < points.Length; i++)
+            {
                 ArrayDistToLine[i] = ShortDistance(cameraPoint, endOfLine, points[i]);
                 distanceToRayDictionary.Add(points[i], ArrayDistToLine[i]);
             }

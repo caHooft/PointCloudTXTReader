@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using MoreLinq;
 using FileReader.Core;
 using System.IO;
 using System.Globalization;
@@ -9,7 +10,7 @@ using System.Collections;
 
 namespace FileReader
 {
-    class Program
+    public class Program
     {
         static Point[] points = new Point[0];
 
@@ -19,6 +20,8 @@ namespace FileReader
             string Path = @"C:\TestFolderTXTReader\TestRead.txt";
             var table = new DataTable();
             int Limit = 100000;
+
+            Vector vector = new Vector(0.988964, 0.105971, -0.10354);
 
             Point cameraPoint = new Point(131453.074, 398786.554, 16.889);
 
@@ -37,6 +40,7 @@ namespace FileReader
                 Console.WriteLine("\tq - ReadFileInBatch");
                 Console.WriteLine("\tw - Measure distance from the points to the camera");
                 Console.WriteLine("\te - Measure distance from the points to the ray");
+                Console.WriteLine("\td - DynamicMeasure distance from the points to the ray");
                 Console.WriteLine("\tr - Merging dictionaries");
                 Console.WriteLine("\tt - Check if points are within filtering cone");
                 Console.WriteLine("\ty - Get Nearest Object In Cone");
@@ -44,16 +48,59 @@ namespace FileReader
                 Console.WriteLine("\ts - Sort Dictionary based on distance from point to ray");
                 Console.WriteLine("\tp - Static test distance from the points to the ray");
                 Console.WriteLine("\to - Static test merging dictionaries");
+                Console.WriteLine("\tk - Everything in order");
                 Console.WriteLine("\tl - Quit application");
 
                 Console.Write("Your option? ");
 
                 switch (Console.ReadLine())
                 {
+                    case "m":
+                        PickPoint(Path, Limit, cameraPoint, filteredDistanceFromCameraDictionary, distanceFromCameraDictionary, distanceFromRayDictionary, distancesDictionary, vector);
+                        
+                        break;
+                    case "k":
+                        Console.WriteLine($"Eerything in order ");
+
+                        ReadFileInBatch(Path, Limit);  // Read file in chunks
+
+                        Console.WriteLine("\n");
+                        Console.WriteLine($"File is read ");
+
+                        Console.WriteLine($"Measure distance from the points to the camera");
+
+                        Extension.MeasureDistanceToCamera(distanceFromCameraDictionary, cameraPoint, points);
+
+                        Console.WriteLine("\n");
+
+                        Console.WriteLine($"Measure distance from the points to the ray");
+
+                        Extension.DynamicMeasureDistanceToRay(distanceFromRayDictionary, cameraPoint, points,vector);
+
+                        Console.WriteLine("\n");
+
+                        Console.WriteLine($"Merging dictionaries");
+
+                        distancesDictionary = DictionaryMerger(distanceFromCameraDictionary, distanceFromRayDictionary);
+
+                        Console.WriteLine("\n");
+
+                        Console.WriteLine($"Filtering points based on cone from ray");
+
+                        FilterPoints(filteredDistanceFromCameraDictionary, distancesDictionary);
+
+                        Console.WriteLine("\n");
+
+                        Console.WriteLine($"Get Nearest Object In Cone");
+
+                        GetNearestObjectInCone(filteredDistanceFromCameraDictionary);
+
+                        Console.WriteLine("\n");
+                        break;
                     case "q":
                         Console.WriteLine($"Your result: = ");
 
-                        ReadFileInBatch(Path, Limit, cameraPoint);  // Read file in chunks
+                        ReadFileInBatch(Path, Limit);  // Read file in chunks
 
                         Console.WriteLine("\n");
                         break;
@@ -73,6 +120,13 @@ namespace FileReader
 
                         Console.WriteLine("\n");
                         break;
+                    case "d":
+                        Console.WriteLine($"Measure distance from the points to the ray");
+
+                        Extension.DynamicMeasureDistanceToRay(distanceFromRayDictionary, cameraPoint, points, vector);
+
+                        Console.WriteLine("\n");
+                        break;
 
                     case "t":
                         Console.WriteLine($"Filtering points based on cone from ray");
@@ -89,7 +143,6 @@ namespace FileReader
 
                         Console.WriteLine("\n");
                         break;
-
 
                     case "r":
                         Console.WriteLine($"Merging dictionaries");
@@ -159,9 +212,48 @@ namespace FileReader
             }
         }
 
+        public static string PickPoint(string Path,int Limit, Point cameraPoint, Dictionary<Point, double> filteredDistanceFromCameraDictionary, Dictionary<Point, double> distanceFromCameraDictionary, Dictionary<Point, double> distanceFromRayDictionary, Dictionary<Point, Tuple<double,double>> distancesDictionary, Vector vector)
+        {
+            Console.WriteLine($"Eerything in order function");
+
+            ReadFileInBatch(Path, Limit);  // Read file in chunks
+
+            Console.WriteLine("\n");
+
+            Console.WriteLine($"Measure distance from the points to the camera");
+
+            Extension.MeasureDistanceToCamera(distanceFromCameraDictionary, cameraPoint, points);
+
+            Console.WriteLine("\n");
+
+            Console.WriteLine($"Measure distance from the points to the ray");
+
+            Extension.DynamicMeasureDistanceToRay(distanceFromRayDictionary, cameraPoint, points, vector);
+
+            Console.WriteLine("\n");
+
+            Console.WriteLine($"Merging dictionaries");
+
+            distancesDictionary = DictionaryMerger(distanceFromCameraDictionary, distanceFromRayDictionary);
+
+            Console.WriteLine("\n");
+
+            Console.WriteLine($"Filtering points based on cone from ray");
+
+            FilterPoints(filteredDistanceFromCameraDictionary, distancesDictionary);
+
+            Console.WriteLine("\n");
+
+            Console.WriteLine($"Get Nearest Object In Cone");
+
+            string result;
+
+            return result = GetNearestObjectInCone(filteredDistanceFromCameraDictionary);            
+        }
+
         // Read file in chunks 
         // Every chunk is converted 
-        internal static void ReadFileInBatch(string Path, int Limit, Point cameraPoint)
+        public static void ReadFileInBatch(string Path, int Limit)
         {
             if (File.Exists(Path)) // Check if local path is valid
             {
@@ -239,7 +331,7 @@ namespace FileReader
         }
 
         /* Read Full file does not work for pointclouds*/
-        internal static void ReadFullFile(string Path)
+        public static void ReadFullFile(string Path)
         {            
             if (File.Exists(Path)) // Check if local path is valid
             {
@@ -251,49 +343,23 @@ namespace FileReader
             }
         }
 
-        internal static void GetNearestObjectInCone(Dictionary<Point, double> filteredDistanceFromCameraDictionary)
+        public static string GetNearestObjectInCone(Dictionary<Point, double> filteredDistanceFromCameraDictionary)
         {
             filteredDistanceFromCameraDictionary = Extension.SortByDistance(filteredDistanceFromCameraDictionary);
-
+            string result = "No Point found";
             bool found = false;
 
             double start =0;
 
-            int iMin = 0;
-
-            int iMax = 5;
-
             double tol = 0.001;
 
-            //while(found = false && i < iMax)
-            //{
-            //    foreach (KeyValuePair<Point, double> kvp in filteredDistanceFromCameraDictionary)
-            //    {
-            //        if (Math.Abs(kvp.Value - kvp.Value) < tol)
-            //        {
-            //            Console.WriteLine("X={0}: Y={1}: Z={2}: Angle={3}:", kvp.Key.X, kvp.Key.Y, kvp.Key.Z, Math.Abs(kvp.Value));
-            //        }
-            //    }
-            //}
-
-
             for (int i = 0; i < filteredDistanceFromCameraDictionary.Count; i++)
-            {
-                
-                //if(i == 0)
-                //{
-                //    start = filteredDistanceFromCameraDictionary.ElementAt(i).Value;
-                //}
-
-
-                //else if(filteredDistanceFromCameraDictionary.ElementAt(i).Value < start)
-                //{
-                //    start = filteredDistanceFromCameraDictionary.ElementAt(i).Value;
-                //}                
+            {         
 
                 if (i == filteredDistanceFromCameraDictionary.Count - 11)
-                {
+                {                    
                     Console.WriteLine("stop");
+                    return result;
 
                 }
                 else if (i < filteredDistanceFromCameraDictionary.Count - 11 && found==false
@@ -309,12 +375,12 @@ namespace FileReader
                     && Math.Abs(filteredDistanceFromCameraDictionary.ElementAt(i).Value - filteredDistanceFromCameraDictionary.ElementAt(i + 10).Value) < tol)
                 {
                     found = true;
+                    result = "{" + "'X' :" + filteredDistanceFromCameraDictionary.ElementAt(i).Key.X + ",'Y' :" + filteredDistanceFromCameraDictionary.ElementAt(i).Key.Y + ",'Z' :" + filteredDistanceFromCameraDictionary.ElementAt(i).Key.Z + "}"; ;
+                    
                     Console.WriteLine("X={0}: Y={1}: Z={2}", filteredDistanceFromCameraDictionary.ElementAt(i).Key.X, filteredDistanceFromCameraDictionary.ElementAt(i).Key.Y, filteredDistanceFromCameraDictionary.ElementAt(i).Key.Z);
+                    return result;
                     //Console.WriteLine("X={0}: Y={1}: Z={2}: Angle={3}:", kvp.Key.X, kvp.Key.Y, kvp.Key.Z, Math.Abs(kvp.Value));
-                }
-
-
-
+                }  
                 //foreach (KeyValuePair<Point, double> kvp in filteredDistanceFromCameraDictionary)
                 //{
                 //    if (Math.Abs(filteredDistanceFromCameraDictionary.ElementAt(i).Value - filteredDistanceFromCameraDictionary.ElementAt(i+1).Value) < tol)
@@ -325,9 +391,10 @@ namespace FileReader
                 //}
             }
             Console.WriteLine("closest point with 5 neighbouring points = {0}", start);
+            return result;
         }
 
-        internal static Dictionary<Point, Tuple<double, double>> DictionaryMerger(Dictionary<Point, double> distanceToCameraDictionary, Dictionary<Point, double> distanceToRayDictionary)
+        public static Dictionary<Point, Tuple<double, double>> DictionaryMerger(Dictionary<Point, double> distanceToCameraDictionary, Dictionary<Point, double> distanceToRayDictionary)
         {
             Dictionary<Point, Tuple<double, double>> resultsNew = new Dictionary<Point, Tuple<double, double>>();
 
@@ -350,14 +417,14 @@ namespace FileReader
             return resultsNew;
         }
 
-        internal static double fromDegreesToRadians(double degrees)
+        public static double fromDegreesToRadians(double degrees)
         {
             double radian = (Math.PI /180) * degrees;
 
             return radian;
         }
 
-        internal static Dictionary<Point, double> FilterPoints(Dictionary<Point, double> filteredDictionary, Dictionary<Point, Tuple<double, double>> distancesDictionary)
+        public static Dictionary<Point, double> FilterPoints(Dictionary<Point, double> filteredDictionary, Dictionary<Point, Tuple<double, double>> distancesDictionary)
         {
             double radians = fromDegreesToRadians(5);
 
@@ -383,7 +450,7 @@ namespace FileReader
             return filteredDictionary;
         }
 
-        internal static void DictionaryMergerStatic()
+        public static void DictionaryMergerStatic()
         {
             Dictionary<double, double> testDict1 = new Dictionary<double, double>();
             Dictionary<double, double> testDict2 = new Dictionary<double, double>();
