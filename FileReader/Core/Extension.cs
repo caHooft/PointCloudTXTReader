@@ -104,10 +104,10 @@ namespace FileReader.Core
 
             Vector squaredValues = new Vector(0,0,0);
 
-            Point endOfLine = new Point(131551.964, 398797151, 6.535);
+            Vector unitVector = new Vector(0, 0, 0);
 
-            //Console.WriteLine("X= old{0} Y= old{1} Z= old {2}", endOfLine.X, endOfLine.Y, endOfLine.Z);
-
+            Point onehunderdMeterPoint = new Point(0, 0, 0);
+            
             Console.WriteLine("X= vectorInput{0} Y= vectorInput{1} Z= vectorInput {2}", vector.X, vector.Y, vector.Z);
 
             squaredValues.X = Math.Pow(vector.X, 2);
@@ -116,17 +116,25 @@ namespace FileReader.Core
 
             double magnitude = squaredValues.X + squaredValues.Y + squaredValues.Z;
 
-            Console.WriteLine("X= squaredValues{0} Y= squaredValues{1} Z= squaredValues {2} Magnitude= {3}", squaredValues.X, squaredValues.Y, squaredValues.Z, magnitude);
+            Console.WriteLine("X= squaredValues {0} Y= squaredValues {1} Z= squaredValues {2} Magnitude= {3}", squaredValues.X, squaredValues.Y, squaredValues.Z, magnitude);
 
-            endOfLine.X = vector.X / Math.Sqrt(magnitude);
-            endOfLine.Y = vector.Y / Math.Sqrt(magnitude);
-            endOfLine.Z = vector.Z / Math.Sqrt(magnitude);
+            unitVector.X = vector.X / Math.Sqrt(magnitude);
+            unitVector.Y = vector.Y / Math.Sqrt(magnitude);
+            unitVector.Z = vector.Z / Math.Sqrt(magnitude);
 
-            Console.WriteLine("X= endOfLine{0} Y= endOfLine{1} Z= endOfLine {2}", endOfLine.X, endOfLine.Y, endOfLine.Z);
+            Console.WriteLine("unitVector X=  {0} unitVector Y= {1} unitVector Z= {2}", unitVector.X, unitVector.Y, unitVector.Z);
+
+            onehunderdMeterPoint.X = (unitVector.X * 100) + cameraPoint.X;
+            onehunderdMeterPoint.Y = (unitVector.Y * 100) + cameraPoint.Y;
+            onehunderdMeterPoint.Z = (unitVector.Z * 100) + cameraPoint.Z;
+
+            Console.WriteLine("X= cameraPoint {0} Y= cameraPoint {1} Z= cameraPoint {2}", cameraPoint.X, cameraPoint.Y, cameraPoint.Z);
+
+            Console.WriteLine("X= onehunderdMeterPoint {0} Y= onehunderdMeterPoint {1} Z= onehunderdMeterPoint {2}", onehunderdMeterPoint.X, onehunderdMeterPoint.Y, onehunderdMeterPoint.Z);
 
             for (int i = 0; i < points.Length; i++)
             {
-                ArrayDistToLine[i] = ShortDistance(cameraPoint, endOfLine, points[i]);
+                ArrayDistToLine[i] = ShortDistance(cameraPoint, onehunderdMeterPoint, points[i]);
                 distanceToRayDictionary.Add(points[i], ArrayDistToLine[i]);
             }
             return distanceToRayDictionary;
