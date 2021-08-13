@@ -100,6 +100,13 @@ namespace FileReader.Core
 
         public static Dictionary<Point, double> DynamicMeasureDistanceToRay(Dictionary<Point, double> distanceToRayDictionary, Point cameraPoint, Point[] points, Vector vector)
         {
+
+            StringBuilder sb = new StringBuilder();
+
+            sb.AppendFormat("start point of beam/ray x = {0}, y = {1}, z = {2},", cameraPoint.X, cameraPoint.Y, cameraPoint.Z);
+
+            sb.Append(Environment.NewLine);
+
             double[] ArrayDistToLine = new double[points.Length];
 
             Vector squaredValues = new Vector(0,0,0);
@@ -131,6 +138,11 @@ namespace FileReader.Core
             Console.WriteLine("X= cameraPoint {0} Y= cameraPoint {1} Z= cameraPoint {2}", cameraPoint.X, cameraPoint.Y, cameraPoint.Z);
 
             Console.WriteLine("X= onehunderdMeterPoint {0} Y= onehunderdMeterPoint {1} Z= onehunderdMeterPoint {2}", onehunderdMeterPoint.X, onehunderdMeterPoint.Y, onehunderdMeterPoint.Z);
+            
+            sb.AppendFormat("end point of beam/ray x = {0}, y = {1}, z = {2},", onehunderdMeterPoint.X, onehunderdMeterPoint.Y, onehunderdMeterPoint.Z);
+            sb.Append(Environment.NewLine);
+
+            File.AppendAllText("C:\\log\\DLLLog.txt", sb.ToString());
 
             for (int i = 0; i < points.Length; i++)
             {

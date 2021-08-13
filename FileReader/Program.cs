@@ -7,6 +7,7 @@ using System.IO;
 using System.Globalization;
 using System.Data;
 using System.Collections;
+using System.Text;
 
 namespace FileReader
 {
@@ -212,11 +213,44 @@ namespace FileReader
             }
         }
 
+        public void writeLog(double p1x, double p1y, double p1z, double p2p, double p2y, double p3p, double p3y, double v1x, double v1y, double v1z, double v2x, double v2y, double v2z)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.AppendFormat("point1 = X: {0}, Y: {1}, Z: {2}", p1x, p1y, p1z);
+            sb.AppendFormat(" angle1 = Pitch: {0}, Yaw: {1}", p2p, p2y);
+            sb.AppendFormat(" angle2 = Pitch: {0}, Yaw: {1}", p3p, p3y);
+
+            sb.Append(Environment.NewLine);
+
+            sb.AppendFormat("vector1 = X: {0}, Y: {1}, Z: {2}", v1x, v1y, v1z);
+            sb.AppendFormat(" vector2 = X: {0}, Y: {1}, Z: {2}", v2x, v2y, v2z);
+
+            sb.Append(Environment.NewLine);
+
+            sb.AppendFormat("------------------end of log--------------------");
+
+            sb.Append(Environment.NewLine);
+            sb.Append(Environment.NewLine);
+
+            File.AppendAllText("C:\\log\\DLLLog.txt", sb.ToString());
+        }
+
         public static string PickPoint(string Path,int Limit, Point cameraPoint, Dictionary<Point, double> filteredDistanceFromCameraDictionary, Dictionary<Point, double> distanceFromCameraDictionary, Dictionary<Point, double> distanceFromRayDictionary, Dictionary<Point, Tuple<double,double>> distancesDictionary, Vector vector)
         {
+            StringBuilder sb = new StringBuilder();
+            
+            sb.AppendFormat("Start time = {0}", DateTime.Now.ToString());
+
+            sb.Append(Environment.NewLine);
+
             Console.WriteLine($"Eerything in order function");
 
             ReadFileInBatch(Path, Limit);  // Read file in chunks
+
+            sb.AppendFormat("Done with reading time = {0}", DateTime.Now.ToString());
+
+            sb.Append(Environment.NewLine);
 
             Console.WriteLine("\n");
 
@@ -224,11 +258,19 @@ namespace FileReader
 
             Extension.MeasureDistanceToCamera(distanceFromCameraDictionary, cameraPoint, points);
 
+            sb.AppendFormat("Done with measuring distance to camera time = {0}", DateTime.Now.ToString());
+
+            sb.Append(Environment.NewLine);
+
             Console.WriteLine("\n");
 
             Console.WriteLine($"Measure distance from the points to the ray");
 
             Extension.DynamicMeasureDistanceToRay(distanceFromRayDictionary, cameraPoint, points, vector);
+
+            sb.AppendFormat("Done with measuring distance to ray time = {0}", DateTime.Now.ToString());
+
+            sb.Append(Environment.NewLine);
 
             Console.WriteLine("\n");
 
@@ -236,19 +278,48 @@ namespace FileReader
 
             distancesDictionary = DictionaryMerger(distanceFromCameraDictionary, distanceFromRayDictionary);
 
+            sb.AppendFormat("Done with mergeing dictionaries = {0}", DateTime.Now.ToString());
+
+            sb.Append(Environment.NewLine);
+
             Console.WriteLine("\n");
 
             Console.WriteLine($"Filtering points based on cone from ray");
 
             FilterPoints(filteredDistanceFromCameraDictionary, distancesDictionary);
 
+            sb.AppendFormat("Done with filtering points = {0}", DateTime.Now.ToString());
+
+            sb.Append(Environment.NewLine);
+
+            sb.AppendFormat("Amount of points inside filter cone = {0}", filteredDistanceFromCameraDictionary.Count());
+
+            sb.Append(Environment.NewLine);
+
             Console.WriteLine("\n");
 
             Console.WriteLine($"Get Nearest Object In Cone");
 
-            string result;
+            string result = " ";
 
-            return result = GetNearestObjectInCone(filteredDistanceFromCameraDictionary);            
+            result = GetNearestObjectInCone(filteredDistanceFromCameraDictionary);
+
+            sb.AppendFormat("Done with picking a point = {0}", DateTime.Now.ToString());
+
+            sb.Append(Environment.NewLine);
+
+            sb.AppendFormat("Picked point result = {0}", result);
+
+            sb.Append(Environment.NewLine);
+
+            sb.AppendFormat("------------------end of log--------------------");
+
+            sb.Append(Environment.NewLine);
+            sb.Append(Environment.NewLine);
+
+            File.AppendAllText("C:\\log\\DLLLog.txt", sb.ToString());
+            
+            return result;            
         }
 
         // Read file in chunks 
@@ -268,7 +339,7 @@ namespace FileReader
                         TotalRows, Offset, Limit
                     );
                     Console.WriteLine(DateTime.Now.ToString());
-
+                    
                     Console.WriteLine(Logs);
 
                     //every limit amount of times this is called to get the data from file to this table
@@ -426,7 +497,7 @@ namespace FileReader
 
         public static Dictionary<Point, double> FilterPoints(Dictionary<Point, double> filteredDictionary, Dictionary<Point, Tuple<double, double>> distancesDictionary)
         {
-            double radians = fromDegreesToRadians(5);
+            double radians = fromDegreesToRadians(2);
 
             foreach (var value in distancesDictionary)
             {
@@ -440,12 +511,12 @@ namespace FileReader
             }
 
             //Debugging 
-            foreach (var value in filteredDictionary)
-            {                
-                KeyValuePair<Point, double> myVal = (KeyValuePair<Point, double>)value;
-                Console.WriteLine(string.Format("X={0}: Y={1}: Z={2}: distance to camera={3}: ", myVal.Key.X, myVal.Key.Y, myVal.Key.Z, myVal.Value));
+            //foreach (var value in filteredDictionary)
+            //{                
+            //    KeyValuePair<Point, double> myVal = (KeyValuePair<Point, double>)value;
+            //    Console.WriteLine(string.Format("X={0}: Y={1}: Z={2}: distance to camera={3}: ", myVal.Key.X, myVal.Key.Y, myVal.Key.Z, myVal.Value));
                 
-            }
+            //}
 
             return filteredDictionary;
         }
