@@ -38,6 +38,7 @@ namespace FileReader
             while (app)
             {
                 Console.WriteLine("Choose an option from the following list:");
+                Console.WriteLine("\tm - Everthing in order with log(webservice function)");
                 Console.WriteLine("\tq - ReadFileInBatch");
                 Console.WriteLine("\tw - Measure distance from the points to the camera");
                 Console.WriteLine("\te - Measure distance from the points to the ray");
@@ -57,6 +58,14 @@ namespace FileReader
                 switch (Console.ReadLine())
                 {
                     case "m":
+                        StringBuilder sb = new StringBuilder();
+
+                        sb.AppendFormat("------------------Start of log--------------------");
+
+                        sb.Append(Environment.NewLine);
+
+                        File.AppendAllText("C:\\log\\DLLLog.txt", sb.ToString());
+
                         PickPoint(Path, Limit, cameraPoint, filteredDistanceFromCameraDictionary, distanceFromCameraDictionary, distanceFromRayDictionary, distancesDictionary, vector);
                         
                         break;
@@ -239,9 +248,12 @@ namespace FileReader
         public static string PickPoint(string Path,int Limit, Point cameraPoint, Dictionary<Point, double> filteredDistanceFromCameraDictionary, Dictionary<Point, double> distanceFromCameraDictionary, Dictionary<Point, double> distanceFromRayDictionary, Dictionary<Point, Tuple<double,double>> distancesDictionary, Vector vector)
         {
             StringBuilder sb = new StringBuilder();
-            
-            sb.AppendFormat("Start time = {0}", DateTime.Now.ToString());
 
+            sb.Append(Environment.NewLine);
+
+            sb.AppendFormat("Start Time = {0}", DateTime.Now.ToString());
+
+            sb.Append(Environment.NewLine);
             sb.Append(Environment.NewLine);
 
             Console.WriteLine($"Eerything in order function");
@@ -309,6 +321,11 @@ namespace FileReader
             sb.Append(Environment.NewLine);
 
             sb.AppendFormat("Picked point result = {0}", result);
+
+            sb.Append(Environment.NewLine);
+            sb.Append(Environment.NewLine);
+
+            sb.AppendFormat("End Time = {0}", DateTime.Now.ToString());
 
             sb.Append(Environment.NewLine);
 
@@ -431,7 +448,6 @@ namespace FileReader
                 {                    
                     Console.WriteLine("stop");
                     return result;
-
                 }
                 else if (i < filteredDistanceFromCameraDictionary.Count - 11 && found==false
                     && Math.Abs(filteredDistanceFromCameraDictionary.ElementAt(i).Value - filteredDistanceFromCameraDictionary.ElementAt(i + 1).Value) < tol
@@ -452,6 +468,7 @@ namespace FileReader
                     return result;
                     //Console.WriteLine("X={0}: Y={1}: Z={2}: Angle={3}:", kvp.Key.X, kvp.Key.Y, kvp.Key.Z, Math.Abs(kvp.Value));
                 }  
+
                 //foreach (KeyValuePair<Point, double> kvp in filteredDistanceFromCameraDictionary)
                 //{
                 //    if (Math.Abs(filteredDistanceFromCameraDictionary.ElementAt(i).Value - filteredDistanceFromCameraDictionary.ElementAt(i+1).Value) < tol)
@@ -461,7 +478,8 @@ namespace FileReader
                 //    }
                 //}
             }
-            Console.WriteLine("closest point with 5 neighbouring points = {0}", start);
+
+            Console.WriteLine("closest point with 10 neighbouring points = {0}", start);
             return result;
         }
 
