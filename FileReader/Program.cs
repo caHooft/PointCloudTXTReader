@@ -434,32 +434,18 @@ namespace FileReader
         public static string GetNearestObjectInCone(Dictionary<Point, double> filteredDistanceFromCameraDictionary)
         {
             filteredDistanceFromCameraDictionary = Extension.SortByDistance(filteredDistanceFromCameraDictionary);
+
             string result = "No Point found";
             bool found = false;
 
-            double start =0;
-
-            double tol = 0.001;
-
             for (int i = 0; i < filteredDistanceFromCameraDictionary.Count; i++)
-            {         
-
-                if (i == filteredDistanceFromCameraDictionary.Count - 11)
-                {                    
+            {
+                if (i == filteredDistanceFromCameraDictionary.Count - 50)
+                {
                     Console.WriteLine("stop");
                     return result;
                 }
-                else if (i < filteredDistanceFromCameraDictionary.Count - 11 && found==false
-                    && Math.Abs(filteredDistanceFromCameraDictionary.ElementAt(i).Value - filteredDistanceFromCameraDictionary.ElementAt(i + 1).Value) < tol
-                    && Math.Abs(filteredDistanceFromCameraDictionary.ElementAt(i).Value - filteredDistanceFromCameraDictionary.ElementAt(i + 2).Value) < tol
-                    && Math.Abs(filteredDistanceFromCameraDictionary.ElementAt(i).Value - filteredDistanceFromCameraDictionary.ElementAt(i + 3).Value) < tol
-                    && Math.Abs(filteredDistanceFromCameraDictionary.ElementAt(i).Value - filteredDistanceFromCameraDictionary.ElementAt(i + 4).Value) < tol
-                    && Math.Abs(filteredDistanceFromCameraDictionary.ElementAt(i).Value - filteredDistanceFromCameraDictionary.ElementAt(i + 5).Value) < tol
-                    && Math.Abs(filteredDistanceFromCameraDictionary.ElementAt(i).Value - filteredDistanceFromCameraDictionary.ElementAt(i + 6).Value) < tol
-                    && Math.Abs(filteredDistanceFromCameraDictionary.ElementAt(i).Value - filteredDistanceFromCameraDictionary.ElementAt(i + 7).Value) < tol
-                    && Math.Abs(filteredDistanceFromCameraDictionary.ElementAt(i).Value - filteredDistanceFromCameraDictionary.ElementAt(i + 8).Value) < tol
-                    && Math.Abs(filteredDistanceFromCameraDictionary.ElementAt(i).Value - filteredDistanceFromCameraDictionary.ElementAt(i + 9).Value) < tol
-                    && Math.Abs(filteredDistanceFromCameraDictionary.ElementAt(i).Value - filteredDistanceFromCameraDictionary.ElementAt(i + 10).Value) < tol)
+                else if (found == false && IsCoPlanar(filteredDistanceFromCameraDictionary, i))
                 {
                     found = true;
                     result = "{" + "'X' :" + filteredDistanceFromCameraDictionary.ElementAt(i).Key.X + ",'Y' :" + filteredDistanceFromCameraDictionary.ElementAt(i).Key.Y + ",'Z' :" + filteredDistanceFromCameraDictionary.ElementAt(i).Key.Z + "}"; ;
@@ -478,9 +464,35 @@ namespace FileReader
                 //    }
                 //}
             }
-
-            Console.WriteLine("closest point with 10 neighbouring points = {0}", start);
+            
             return result;
+        }
+
+        public static bool IsCoPlanar (Dictionary<Point, double> filteredDistanceFromCameraDictionary, int i)
+        {
+            double tol = 0.01;
+            int check = 50;
+            int k = 1;
+
+            Console.WriteLine("IsCoPlanar is called");
+
+            while (k <= check)
+            {                
+                if (Math.Abs(filteredDistanceFromCameraDictionary.ElementAt(i).Value - filteredDistanceFromCameraDictionary.ElementAt(i + k).Value) < tol)
+                {
+                    //Console.WriteLine("k={0}: ",k);
+                    k++;                    
+                }
+
+                else
+                {
+                    Console.WriteLine("k={0}: ", k);
+                    Console.WriteLine("i={0}: does not have 50 neighbours", i);
+                    return false;
+                }
+            }
+            Console.WriteLine("IsCoPlanar While loop is a succes");
+            return true;
         }
 
         public static Dictionary<Point, Tuple<double, double>> DictionaryMerger(Dictionary<Point, double> distanceToCameraDictionary, Dictionary<Point, double> distanceToRayDictionary)
