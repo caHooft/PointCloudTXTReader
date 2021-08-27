@@ -221,30 +221,7 @@ namespace FileReader
                 Console.WriteLine("\n");
             }
         }
-
-        public void writeLog(double p1x, double p1y, double p1z, double p2p, double p2y, double p3p, double p3y, double v1x, double v1y, double v1z, double v2x, double v2y, double v2z)
-        {
-            StringBuilder sb = new StringBuilder();
-
-            sb.AppendFormat("point1 = X: {0}, Y: {1}, Z: {2}", p1x, p1y, p1z);
-            sb.AppendFormat(" angle1 = Pitch: {0}, Yaw: {1}", p2p, p2y);
-            sb.AppendFormat(" angle2 = Pitch: {0}, Yaw: {1}", p3p, p3y);
-
-            sb.Append(Environment.NewLine);
-
-            sb.AppendFormat("vector1 = X: {0}, Y: {1}, Z: {2}", v1x, v1y, v1z);
-            sb.AppendFormat(" vector2 = X: {0}, Y: {1}, Z: {2}", v2x, v2y, v2z);
-
-            sb.Append(Environment.NewLine);
-
-            sb.AppendFormat("------------------end of log--------------------");
-
-            sb.Append(Environment.NewLine);
-            sb.Append(Environment.NewLine);
-
-            File.AppendAllText("C:\\log\\DLLLog.txt", sb.ToString());
-        }
-
+        
         public static string PickPoint(string Path,int Limit, Point cameraPoint, Dictionary<Point, double> filteredDistanceFromCameraDictionary, Dictionary<Point, double> distanceFromCameraDictionary, Dictionary<Point, double> distanceFromRayDictionary, Dictionary<Point, Tuple<double,double>> distancesDictionary, Vector vector)
         {
             StringBuilder sb = new StringBuilder();
@@ -303,6 +280,7 @@ namespace FileReader
             sb.AppendFormat("Done with filtering points = {0}", DateTime.Now.ToString());
 
             sb.Append(Environment.NewLine);
+            sb.Append(Environment.NewLine);
 
             sb.AppendFormat("Amount of points inside filter cone = {0}", filteredDistanceFromCameraDictionary.Count());
 
@@ -315,9 +293,11 @@ namespace FileReader
             string result = " ";
 
             result = GetNearestObjectInCone(filteredDistanceFromCameraDictionary);
+            sb.Append(Environment.NewLine);
 
             sb.AppendFormat("Done with picking a point = {0}", DateTime.Now.ToString());
 
+            sb.Append(Environment.NewLine);
             sb.Append(Environment.NewLine);
 
             sb.AppendFormat("Picked point result = {0}", result);
@@ -471,7 +451,7 @@ namespace FileReader
         public static bool IsCoPlanar (Dictionary<Point, double> filteredDistanceFromCameraDictionary, int i)
         {
             double tol = 0.01;
-            int check = 50;
+            int check = 20;
             int k = 1;
 
             Console.WriteLine("IsCoPlanar is called");
@@ -487,7 +467,7 @@ namespace FileReader
                 else
                 {
                     Console.WriteLine("k={0}: ", k);
-                    Console.WriteLine("i={0}: does not have 50 neighbours", i);
+                    Console.WriteLine("i={0}: does not have enough neighbouring points", i);
                     return false;
                 }
             }

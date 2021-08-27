@@ -12,7 +12,7 @@ C:\Users\Casper\Source\Repos\FileReader\FileReader\bin\Debug\MoreLinq.pdb
 C:\Users\Casper\Source\Repos\FileReader\FileReader\bin\Debug\MoreLinq.xml
 C:\Users\Casper\Source\Repos\FileReader\FileReader\bin\Debug\System.ValueTuple.xml
 C:\Users\Casper\Source\Repos\FileReader\FileReader\obj\Debug\FileReader.pdb
+C:\Users\Casper\Source\Repos\FileReader\FileReader\obj\Debug\FileReader.csprojResolveAssemblyReference.cache
 C:\Users\Casper\Source\Repos\FileReader\FileReader\bin\Debug\FileReader.exe.config
 C:\Users\Casper\Source\Repos\FileReader\FileReader\bin\Debug\FileReader.exe
 C:\Users\Casper\Source\Repos\FileReader\FileReader\obj\Debug\FileReader.exe
-C:\Users\Casper\source\repos\FileReader\FileReader\obj\Debug\FileReader.csprojResolveAssemblyReference.cache
