@@ -525,7 +525,18 @@ namespace FileReader
             //{                
             //    KeyValuePair<Point, double> myVal = (KeyValuePair<Point, double>)value;
             //    Console.WriteLine(string.Format("X={0}: Y={1}: Z={2}: distance to camera={3}: ", myVal.Key.X, myVal.Key.Y, myVal.Key.Z, myVal.Value));
-                
+
+            //}
+
+            foreach (var value in filteredDictionary)
+            {
+                System.IO.File.AppendAllText("C:\\log\\ConePoints.txt", string.Format("{0} {1} {2} {3}", value.Key.X, value.Key.Y, value.Key.Z, Environment.NewLine));
+
+            }
+
+            //foreach (KeyValuePair<string, string> kvp in dictionary)
+            //{
+            //    System.IO.File.AppendAllText("dictionary.txt", string.Format("{0} {1} {2}", kvp.Key, kvp.Value, Environment.NewLine));
             //}
 
             return filteredDictionary;
