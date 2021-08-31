@@ -420,7 +420,7 @@ namespace FileReader
 
             for (int i = 0; i < filteredDistanceFromCameraDictionary.Count; i++)
             {
-                if (i == filteredDistanceFromCameraDictionary.Count - 50)
+                if (i == filteredDistanceFromCameraDictionary.Count - 20)
                 {
                     Console.WriteLine("stop");
                     return result;
@@ -507,7 +507,7 @@ namespace FileReader
 
         public static Dictionary<Point, double> FilterPoints(Dictionary<Point, double> filteredDictionary, Dictionary<Point, Tuple<double, double>> distancesDictionary)
         {
-            double radians = fromDegreesToRadians(2);
+            double radians = fromDegreesToRadians(5);
 
             foreach (var value in distancesDictionary)
             {
@@ -530,7 +530,7 @@ namespace FileReader
 
             foreach (var value in filteredDictionary)
             {
-                System.IO.File.AppendAllText("C:\\log\\ConePoints.txt", string.Format("{0} {1} {2} {3}", value.Key.X, value.Key.Y, value.Key.Z, Environment.NewLine));
+                System.IO.File.AppendAllText("C:\\log\\ConePoints.txt", string.Format(CultureInfo.InvariantCulture, "{0} {1} {2} {3}", value.Key.X, value.Key.Y, value.Key.Z, Environment.NewLine));
 
             }
 
